@@ -1,5 +1,5 @@
 {
-    "name": "react-server",
+    "name": "react-api",
     "scripts": {
         "start": "node server.js",
         "test": "mocha"
@@ -19,6 +19,7 @@
         "passport-jwt": "^3.0.0",
         "request": "^2.83.0",
         "socket-io": "^1.0.0",
+        "socket.io": "^2.0.3",
         "twilio": "^3.6.7"
     },
     "devDependencies": {
