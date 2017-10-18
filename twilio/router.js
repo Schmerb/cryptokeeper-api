@@ -38,4 +38,4 @@ function sendMessage(number) {
 }
 
 
-module.exports = {router};
+module.exports = { router };

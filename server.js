@@ -8,31 +8,26 @@ const bodyParser = require('body-parser'),
       passport   = require('passport');
      
 
-// Here we use destructuring assignment with renaming so the two variables
-// called router (from ./users and ./auth) have different names
-// For example:
-// const actorSurnames = { james: "Stewart", robert: "De Niro" };
-// const { james: jimmy, robert: bobby } = actorSurnames;
-// console.log(jimmy); // Stewart - the variable name is jimmy, not james
-// console.log(bobby); // De Niro - the variable name is bobby, not robert
-const {router: usersRouter} = require('./users');
-const {router: twilioRouter} = require('./twilio');
+const { router: usersRouter }  = require('./users');
+const { router: twilioRouter } = require('./twilio');
+const { router: cryptoRouter } = require('./crypto');
 const {
     router: authRouter, 
     basicStrategy, 
     jwtStrategy
 } = require('./auth');
 
+// CONFIG
 mongoose.Promise = global.Promise;
+const { PORT, DATABASE_URL } = require('./config');
 
-const {PORT, DATABASE_URL} = require('./config');
-
+// Create Express Instance
 const app = express(); 
 
 // SOCKET.IO 
 const httpServer = require('http').Server(app);
 require('./services/live-chat')(httpServer);
-
+require('./services/crypto-prices')(httpServer);
 
 // LOGGING
 app.use(morgan('common'));
@@ -48,13 +43,16 @@ app.use(function(req, res, next) {
       next();
 });
 
+// MIDDLEWARE
 app.use(passport.initialize());
 passport.use(basicStrategy);
 passport.use(jwtStrategy);
 
+// ROUTERS
 app.use('/api/users/', usersRouter);
 app.use('/api/auth/', authRouter);
 app.use('/twilio', twilioRouter);
+app.use('/crypto', cryptoRouter);
 
 // A protected endpoint which needs a valid JWT to access it
 app.get(
@@ -67,7 +65,7 @@ app.get(
     }
 );
 
-
+// Fallback for all non-valid endpoints
 app.use('*', (req, res) => {
     return res.status(404).json({message: 'Not Found'});
 });

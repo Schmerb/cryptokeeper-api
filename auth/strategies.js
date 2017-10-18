@@ -1,5 +1,5 @@
-const passport        = require('passport'),
-      {BasicStrategy} = require('passport-http');
+const passport          = require('passport'),
+      { BasicStrategy } = require('passport-http');
 const {
     // Assigns the Strategy export to the name JwtStrategy using object
     // destructuring

@@ -10,14 +10,14 @@ const UserSchema = mongoose.Schema({
         unique: true
     },
     username: {
-        type: String,
+        type: String, 
         required: true,
         unique: true
     },
     password: {
         type: String,
         required: true
-    },
+    }, 
     firstName: {type: String, default: ''},
     lastName: {type: String, default: ''}
 });
@@ -26,7 +26,7 @@ UserSchema.methods.apiRepr = function() {
     return {
         email: this.email || '',
         username: this.username || '',
-        firstName: this.firstName || '',
+        firstName: this.firstName || '',   
         lastName: this.lastName || ''
     };
 };

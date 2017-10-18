@@ -1,11 +1,12 @@
 'use strict';
 
 // Module dependencies
-const gulp = require('gulp');
-const browserSync = require('browser-sync');
-const reload = browserSync.reload;
-const nodemon = require('gulp-nodemon');
-const minify = require('gulp-minify');
+const gulp        = require('gulp'),
+	  browserSync = require('browser-sync'),
+	  reload      = browserSync.reload,
+	  nodemon     = require('gulp-nodemon'),
+	  watch       = require('gulp-watch'),
+	  minify      = require('gulp-minify');
 // const cp = require('child_process');
 
 gulp.task('browser-sync', ['nodemon'], () =>  {
@@ -41,9 +42,9 @@ gulp.task('nodemon', (cb) => {
 
 // Reload browser on file save
 gulp.task('default', ['browser-sync'], () => {
-	gulp.watch(["**/*.html", "**/*.css", "**/*.js", "**/**/*.ejs", "*.json", "*.md"], () => {
-		reload();
-	});
+	// gulp.watch(["**/*.html", "**/*.css", "**/*.js", "**/**/*.ejs", "*.json", "*.md"], () => {
+	// 	reload();
+	// });
 });
 
 // Minify .js files
