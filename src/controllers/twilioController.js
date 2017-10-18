@@ -1,18 +1,11 @@
-const express    = require('express'),
-      bodyParser = require('body-parser');
-    //   twilio     = require('twilio');
+'use strict';
 
 const accountSid = 'ACf1b0cc63dfcbb6dd075115d72b48c61d';
 const authToken  = 'fcf851c6f0b2dc70e19482c1603a6e63';
 
 const client = require('twilio')(accountSid, authToken);
 
-const router = express.Router();
-
-router.use(bodyParser.json());
-
-
-router.get('/', (req, res) => {
+exports.sendTextMessage = (req, res) => {
     let num = req.params.num;
     // let other = req.query.number;
     // console.log(num, other)
@@ -24,8 +17,7 @@ router.get('/', (req, res) => {
     })
     .then((message) => console.log('yo ', message.sid));
     res.send('SENT');
-})
-
+};
 
 function sendMessage(number) {
     client.messages.create({
@@ -36,6 +28,3 @@ function sendMessage(number) {
         console.log(message);
     });
 }
-
-
-module.exports = { router };

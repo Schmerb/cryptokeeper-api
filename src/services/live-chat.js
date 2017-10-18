@@ -1,5 +1,6 @@
-const socketIO = require('socket.io');
+'use strict';
 
+const socketIO = require('socket.io');
 
 module.exports = function (httpServer) {
 	const io = socketIO(httpServer);

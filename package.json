@@ -1,7 +1,7 @@
 {
     "name": "react-api",
     "scripts": {
-        "start": "node server.js",
+        "start": "NODE_PATHS=. node server.js",
         "test": "mocha"
     },
     "dependencies": {

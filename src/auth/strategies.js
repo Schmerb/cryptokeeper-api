@@ -1,3 +1,5 @@
+'use strict';
+
 const passport          = require('passport'),
       { BasicStrategy } = require('passport-http');
 const {
@@ -8,8 +10,8 @@ const {
     ExtractJwt
 } = require('passport-jwt');
 
-const {User}       = require('models/users'),
-      {JWT_SECRET} = require('config');
+const { User }       = require('models/users'),
+      { JWT_SECRET } = require('../../config');
 
 const basicStrategy = new BasicStrategy((username, password, callback) => {
     let user;

@@ -1,3 +1,6 @@
+'use strict';
+
+
 const socketIO = require('socket.io');
 
 module.exports = function(httpServer) {

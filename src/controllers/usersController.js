@@ -1,15 +1,12 @@
-const express    = require('express'),
-      bodyParser = require('body-parser'),
-      passport   = require('passport');
+'use strict';
 
 const { User } = require('models/users');
 
-const router = express.Router();
 
-const jsonParser = bodyParser.json();
-
-// Post to register a new user
-router.post('/', jsonParser, (req, res) => {
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+// Adds a user to the database
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+exports.addUser = (req, res) => {
     const requiredFields = ['email', 'username', 'password'];
     const missingField = requiredFields.find(field => !(field in req.body));
 
@@ -136,16 +133,16 @@ router.post('/', jsonParser, (req, res) => {
             }
             res.status(500).json({code: 500, message: 'Internal server error'});
         });
-});
+};
 
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 // Never expose all your users like below in a prod application
-// we're just doing this so we have a quick way to see
+// we're just doing this so we have a quick way to see 
 // if we're creating users. keep in mind, you can also
 // verify this in the Mongo shell.
-router.get('/', (req, res) => {
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+exports.getAllUsers = (req, res) => {
     return User.find()
         .then(users => res.json(users.map(user => user.apiRepr())))
         .catch(err => res.status(500).json({message: 'Internal server error'}));
-});
-
-module.exports = { router };
+};

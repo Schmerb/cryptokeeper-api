@@ -8,21 +8,16 @@ const bodyParser = require('body-parser'),
       passport   = require('passport'),
       cors       = require('cors'); 
      
-
-const { router: usersRouter }  = require('users');
-const { router: twilioRouter } = require('twilioService');
-const { router: cryptoRouter } = require('cryptoService');
 const {
-    router: authRouter, 
     basicStrategy, 
     jwtStrategy
 } = require('auth');
 
 // CONFIG
 mongoose.Promise = global.Promise;
-const { PORT, DATABASE_URL, CLIENT_ORIGIN } = require('config');
+const { PORT, DATABASE_URL, CLIENT_ORIGIN } = require('./config');
 
-// Create Express Instance
+// EXPRESS INSTANCE
 const app = express(); 
 
 // SOCKET.IO 
@@ -59,22 +54,8 @@ app.use(passport.initialize());
 passport.use(basicStrategy);
 passport.use(jwtStrategy);
 
-// ROUTERS
-app.use('/api/users/', usersRouter);
-app.use('/api/auth/', authRouter);
-app.use('/twilio', twilioRouter);
-app.use('/crypto', cryptoRouter);
-
-// A protected endpoint which needs a valid JWT to access it
-app.get(
-    '/api/protected',
-    passport.authenticate('jwt', {session: false}),
-    (req, res) => {
-        return res.json({
-            data: 'rosebud'
-        });
-    }
-);
+// ROUTES
+require('routes')(app, passport);
 
 // Fallback for all non-valid endpoints
 app.use('*', (req, res) => {
