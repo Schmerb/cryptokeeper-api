@@ -13,7 +13,8 @@ router.post('/', jsonParser, (req, res) => {
     const requiredFields = ['email', 'username', 'password'];
     const missingField = requiredFields.find(field => !(field in req.body));
 
-    console.log('inside POST');
+    console.log('inside POST ', req.body);
+    console.log("REQ:", req.body);
 
     if (missingField) {
         return res.status(422).json({
@@ -150,4 +151,4 @@ router.get('/', (req, res) => {
         .catch(err => res.status(500).json({message: 'Internal server error'}));
 });
 
-module.exports = {router};
+module.exports = { router };
