@@ -6,7 +6,7 @@ const bodyParser = require('body-parser'),
       mongoose   = require('mongoose'),
       morgan     = require('morgan'),
       passport   = require('passport'),
-      cors       = require('cors');
+      cors       = require('cors'); 
      
 
 const { router: usersRouter }  = require('users');
