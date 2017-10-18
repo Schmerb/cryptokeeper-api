@@ -1,5 +1,12 @@
-const accountSid = 'ACf1b0cc63dfcbb6dd075115d72b48c61d';
-const authToken  = 'fcf851c6f0b2dc70e19482c1603a6e63';
+'use strict';
+
+const config = require('./config');
+const accountSid = config.TWILIO_ACCOUNT_SID;
+const authToken = config.TWILIO_AUTH_TOKEN;
+
+console.log({accountSid, authToken});
+
+console.log(config.JWT_SECRET);
 
 const client = require('twilio')(accountSid, authToken);
 
