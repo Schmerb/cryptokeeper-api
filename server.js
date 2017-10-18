@@ -5,7 +5,8 @@ const bodyParser = require('body-parser'),
       express    = require('express'),
       mongoose   = require('mongoose'),
       morgan     = require('morgan'),
-      passport   = require('passport');
+      passport   = require('passport'),
+      cors       = require('cors');
      
 
 const { router: usersRouter }  = require('./users');
@@ -19,7 +20,7 @@ const {
 
 // CONFIG
 mongoose.Promise = global.Promise;
-const { PORT, DATABASE_URL } = require('./config');
+const { PORT, DATABASE_URL, CLIENT_ORIGIN } = require('./config');
 
 // Create Express Instance
 const app = express(); 
@@ -33,15 +34,20 @@ require('./services/crypto-prices')(httpServer);
 app.use(morgan('common'));
 
 // CORS
-app.use(function(req, res, next) {
-      res.header('Access-Control-Allow-Origin', '*');
-      res.header('Access-Control-Allow-Headers', 'Content-Type,Authorization');
-      res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE');
-      if (req.method === 'OPTIONS') {
-          return res.sendStatus(204);
-      }
-      next();
-});
+app.use(
+    cors({
+        origin: CLIENT_ORIGIN
+    })
+);
+// app.use(function(req, res, next) {
+//       res.header('Access-Control-Allow-Origin', '*');
+//       res.header('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+//       res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE');
+//       if (req.method === 'OPTIONS') {
+//           return res.sendStatus(204);
+//       }
+//       next();
+// });
 
 // MIDDLEWARE
 app.use(passport.initialize());
