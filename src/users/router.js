@@ -2,7 +2,7 @@ const express    = require('express'),
       bodyParser = require('body-parser'),
       passport   = require('passport');
 
-const {User} = require('./models');
+const { User } = require('models/users');
 
 const router = express.Router();
 

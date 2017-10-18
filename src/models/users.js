@@ -1,6 +1,10 @@
 const bcrypt   = require('bcryptjs'),
       mongoose = require('mongoose');
 
+const { EventSchema } = require("./events");
+const { CurrencySchema } = require("./currency");
+// import { EventSchema } from "../events/models";
+
 mongoose.Promise = global.Promise;
 
 const UserSchema = mongoose.Schema({
@@ -19,7 +23,10 @@ const UserSchema = mongoose.Schema({
         required: true
     }, 
     firstName: {type: String, default: ''},
-    lastName: {type: String, default: ''}
+    lastName: {type: String, default: ''},
+    phoneNumber: {type: Number, default: ''},
+    currencies: [ {} ],
+    events: [ EventSchema ]
 });
 
 UserSchema.methods.apiRepr = function() {

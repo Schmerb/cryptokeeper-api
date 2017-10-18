@@ -9,26 +9,26 @@ const bodyParser = require('body-parser'),
       cors       = require('cors');
      
 
-const { router: usersRouter }  = require('./users');
-const { router: twilioRouter } = require('./twilio');
-const { router: cryptoRouter } = require('./crypto');
+const { router: usersRouter }  = require('users');
+const { router: twilioRouter } = require('twilioService');
+const { router: cryptoRouter } = require('cryptoService');
 const {
     router: authRouter, 
     basicStrategy, 
     jwtStrategy
-} = require('./auth');
+} = require('auth');
 
 // CONFIG
 mongoose.Promise = global.Promise;
-const { PORT, DATABASE_URL, CLIENT_ORIGIN } = require('./config');
+const { PORT, DATABASE_URL, CLIENT_ORIGIN } = require('config');
 
 // Create Express Instance
 const app = express(); 
 
 // SOCKET.IO 
 const httpServer = require('http').Server(app);
-require('./services/live-chat')(httpServer);
-require('./services/crypto-prices')(httpServer);
+require('services/live-chat')(httpServer);
+require('services/crypto-prices')(httpServer);
 
 // LOGGING
 app.use(morgan('common'));
@@ -36,7 +36,11 @@ app.use(morgan('common'));
 // CORS
 app.use(
     cors({
-        origin: CLIENT_ORIGIN
+        origin: [  // Whitelist 
+            CLIENT_ORIGIN,
+            'http://192.168.1.112:3000',
+            'http://localhost:3000'
+        ]
     })
 );
 
@@ -121,4 +125,4 @@ if (require.main === module) {
 
 
 
-module.exports = {app, runServer, closeServer};
+module.exports = { app, runServer, closeServer };

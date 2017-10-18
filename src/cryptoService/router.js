@@ -3,7 +3,7 @@ const express    = require('express'),
       request    = require('request'),
       socketIO   = require('socket.io');
 
-const router = express();
+const router = express.Router();
 router.use(bodyParser.json());
 
 router.get('/', (req, res) => {
@@ -15,3 +15,5 @@ router.get('/', (req, res) => {
 });
 
 module.exports = { router };
+
+

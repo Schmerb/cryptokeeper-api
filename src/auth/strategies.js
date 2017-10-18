@@ -8,8 +8,8 @@ const {
     ExtractJwt
 } = require('passport-jwt');
 
-const {User}       = require('../users/models'),
-      {JWT_SECRET} = require('../config');
+const {User}       = require('models/users'),
+      {JWT_SECRET} = require('config');
 
 const basicStrategy = new BasicStrategy((username, password, callback) => {
     let user;

@@ -2,7 +2,7 @@ const express  = require('express');
       passport = require('passport');
       jwt      = require('jsonwebtoken');
 
-const config = require('../config');
+const config = require('config');
 
 const createAuthToken = user => {
     return jwt.sign({user}, config.JWT_SECRET, {
