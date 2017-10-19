@@ -3,9 +3,8 @@
 const bcrypt   = require('bcryptjs'),
       mongoose = require('mongoose');
 
-const { EventSchema } = require("./events");
-const { CurrencySchema } = require("./currency");
-// import { EventSchema } from "../events/models";
+const { EventSchema: Events }      = require("./events");
+const { CurrencySchema: Currency } = require("./currency");
 
 mongoose.Promise = global.Promise;
 
@@ -27,16 +26,19 @@ const UserSchema = mongoose.Schema({
     firstName: {type: String, default: ''},
     lastName: {type: String, default: ''},
     phoneNumber: {type: Number, default: ''},
-    currencies: [ {} ],
-    events: [ EventSchema ]
+    currencies: [ Currency ],
+    events: [ Events ]
 });
 
 UserSchema.methods.apiRepr = function() {
     return {
+        id: this._id,
         email: this.email || '',
         username: this.username || '',
         firstName: this.firstName || '',   
-        lastName: this.lastName || ''
+        lastName: this.lastName || '',
+        events: this.events || '',
+        currencies: this.currencies || ''
     };
 };
 

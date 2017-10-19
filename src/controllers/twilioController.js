@@ -1,8 +1,8 @@
 'use strict';
 
-const config = require('../../config');
-const accountSid = config.TWILIO_ACCOUNT_SID;
-const accountSid = config.TWILIO_AUTH_TOKEN;
+const config     = require('../../config'),
+      accountSid = config.TWILIO_ACCOUNT_SID,
+      authToken  = config.TWILIO_AUTH_TOKEN;
 
 const client = require('twilio')(accountSid, authToken);
 

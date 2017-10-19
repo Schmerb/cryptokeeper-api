@@ -1,6 +1,6 @@
 'use strict';
 
-const request    = require('request');
+const request = require('request');
 
 exports.getPrice = (req, res) => {
     const BASE_URL = 'https://min-api.cryptocompare.com/data';
