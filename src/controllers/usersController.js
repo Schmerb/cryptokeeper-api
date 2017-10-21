@@ -136,6 +136,35 @@ exports.addUser = (req, res) => {
 };
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+// Adds user's phone number to their document in db
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+exports.addPhoneNumber = (req, res) => {
+    // logic to check number is formatted properly 
+    // OR
+    // check format on client side
+    const { phoneNumber } = req.body;
+    return User 
+        .findByIdAndUpdate(
+            req.user.id,
+            {$set: {phoneNumber}},
+            {$new: true}
+        )
+        .exec()
+        .then(user => res.json( user.apiRepr()))
+        .catch(err => res.status(500).json({message: 'Internal server error'}));
+};
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+// Returns all of user's data
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+exports.getUser = (req, res) => {
+    return User 
+        .findById(req.user.id)
+        .then(user => res.json( user.apiRepr()))
+        .catch(err => res.status(500).json({message: 'Internal server error'}));
+};
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 // Never expose all your users like below in a prod application
 // we're just doing this so we have a quick way to see 
 // if we're creating users. keep in mind, you can also

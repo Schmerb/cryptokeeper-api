@@ -37,6 +37,7 @@ UserSchema.methods.apiRepr = function() {
         username: this.username || '',
         firstName: this.firstName || '',   
         lastName: this.lastName || '',
+        phoneNumber: this.phoneNumber || '',
         events: this.events || '',
         currencies: this.currencies || ''
     };

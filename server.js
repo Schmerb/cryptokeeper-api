@@ -34,6 +34,7 @@ app.use(
         origin: [  // Whitelist 
             CLIENT_ORIGIN,
             'http://192.168.1.112:3000',
+            'http://172.20.10.2:3000',
             'http://localhost:3000'
         ]
     })
@@ -53,9 +54,11 @@ app.use(function(req, res, next) {
 app.use(passport.initialize());
 passport.use(basicStrategy);
 passport.use(jwtStrategy);
+const authenticate = passport.authenticate('jwt', {session: false});
 
 // ROUTES
-require('routes')(app, passport);
+const { routes } = require('routes');
+routes(app, authenticate);
 
 // Fallback for all non-valid endpoints
 app.use('*', (req, res) => {
@@ -106,4 +109,4 @@ if (require.main === module) {
 
 
 
-module.exports = { app, runServer, closeServer };
+module.exports = { app, runServer, closeServer, passport };

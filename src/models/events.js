@@ -5,17 +5,33 @@ const mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
 
 const EventSchema = mongoose.Schema({
-    type: {
+    name: {
         type: String, 
         required: true
     },
-    amount: {
+    currency: {
+        type: String, 
+        required: true
+    },
+    type: {
+        sms: {type: Boolean, default: true},
+        email: {type: Boolean, default: true}
+    },
+    condition: {
+        type: String, 
+        required: true
+    },
+    value: {
         type: Number, 
         required: true
     },
-    buyPrice: {
-        type: Number, 
-        default: null
+    valueType: {
+        type: String, 
+        required: true
+    },
+    message: {
+        type: String, 
+        required: true
     }
 });
 
