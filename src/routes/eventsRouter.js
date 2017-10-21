@@ -17,13 +17,9 @@ router.post('/', eventsController.addEvent);
 // UPDATE event
 router.put('/:eventId', eventsController.updateEvent);
 
+// DELETE event
+router.delete('/:eventId', eventsController.deleteEvent);
+
 
 module.exports = { router };
 
-//event id : 59e804a719bbfa84816873e9
-
-// db.users.find({
-//       "events": {
-//             $elemMatch:{_id: ObjectId("59e804a719bbfa84816873e9")}
-//       }
-// });

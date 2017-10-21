@@ -41,7 +41,7 @@ exports.addEvent = (req, res) => {
         });
     }
     // make sure 'value' is a number
-    if(typeof(req.body.value) !== 'number') {
+    if('value' in req.body && typeof(req.body.value) !== 'number') {
         return res.status(422).json({
             code: 422,
             reason: 'ValidationError',
@@ -50,33 +50,56 @@ exports.addEvent = (req, res) => {
         });
     }
 
+
     const { name, currency, type, condition, value, valueType, message } = req.body;
     const newEvent = {
         name, 
         currency, 
-        type: {
-            sms: type.sms,
-            email: type.email
-        },
+        type,
         condition, 
         value, 
         valueType, 
         message
     };
-    return User 
+
+    return User
         .findByIdAndUpdate(
-            req.user.id,
-            {$push: {events: newEvent}},
-            {new: true}
-        )
+            req.user.id, 
+            {$push: {events: newEvent}}, 
+            {new: true})
         .exec()
         .then(updatedUser => res.status(201).json(updatedUser.apiRepr()))
-        .catch(err => res.status(500).json({message: 'Something went wrong'}));
+        .catch(err => res.status(500).json({message: 'Something went wrong', err}));
 };
 
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+// Updates existing event for given user
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 exports.updateEvent = (req, res) => {
     let eventId = req.params.eventId;
     console.log(eventId);
+    // make sure strings fields are string
+    const stringFields = ['name', 'currency', 'condition', 'valueType', 'message'];
+    const nonStringField = stringFields.find(field =>
+        (field in req.body) && typeof req.body[field] !== 'string'
+    );
+    if (nonStringField) {
+        return res.status(422).json({
+            code: 422,
+            reason: 'ValidationError',
+            message: 'Incorrect field type: expected string',
+            location: nonStringField
+        });
+    }
+    // make sure 'value' is a number
+    if('value' in req.body && typeof(req.body.value) !== 'number') {
+        return res.status(422).json({
+            code: 422,
+            reason: 'ValidationError',
+            message: 'Incorrect field type: expected number',
+            location: 'value'
+        });
+    }
 
     const updateFields = {};
     for(let prop in req.body) {
@@ -85,12 +108,26 @@ exports.updateEvent = (req, res) => {
     return User
         .findOneAndUpdate(
             {"_id": req.user.id, "events._id":eventId},
-            {
-                $set: updateFields
-            }
+            {$set: updateFields}
         )
         .then(user => {
             console.log(user.events.id(eventId));
+            res.status(200).json(user.apiRepr())
+        })
+        .catch(err => res.status(500).json({message: 'Internal server error'}));
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+// Deletes event from user collection array
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+exports.deleteEvent = (req, res) => {
+    return User.
+        findByIdAndUpdate(req.user.id, {
+            $pull: {
+                'events': {"_id": req.params.eventId}
+            }
+        })
+        .then(user => {
             res.status(200).json(user.apiRepr())
         })
         .catch(err => res.status(500).json({message: 'Internal server error'}));
