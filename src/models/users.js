@@ -25,7 +25,7 @@ const UserSchema = mongoose.Schema({
     }, 
     firstName: {type: String, default: ''},
     lastName: {type: String, default: ''},
-    phoneNumber: {type: Number, default: ''},
+    phoneNumber: {type: Number, default: '', unique: true},
     currencies: [ Currency ],
     events: [ Events ]
 });

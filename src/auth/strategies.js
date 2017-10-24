@@ -2,6 +2,7 @@
 
 const passport          = require('passport'),
       { BasicStrategy } = require('passport-http');
+
 const {
     // Assigns the Strategy export to the name JwtStrategy using object
     // destructuring
@@ -11,7 +12,7 @@ const {
 } = require('passport-jwt');
 
 const { User }       = require('models/users'),
-      { JWT_SECRET } = require('../../config');
+      { JWT_SECRET } = require('config');
 
 const basicStrategy = new BasicStrategy((username, password, callback) => {
     let user;

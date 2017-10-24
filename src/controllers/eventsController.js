@@ -27,30 +27,6 @@ exports.addEvent = (req, res) => {
             location: missingField
         });
     }
-    // make sure strings fields are string
-    const stringFields = ['name', 'currency', 'condition', 'valueType', 'message'];
-    const nonStringField = stringFields.find(field =>
-        (field in req.body) && typeof req.body[field] !== 'string'
-    );
-    if (nonStringField) {
-        return res.status(422).json({
-            code: 422,
-            reason: 'ValidationError',
-            message: 'Incorrect field type: expected string',
-            location: nonStringField
-        });
-    }
-    // make sure 'value' is a number
-    if('value' in req.body && typeof(req.body.value) !== 'number') {
-        return res.status(422).json({
-            code: 422,
-            reason: 'ValidationError',
-            message: 'Incorrect field type: expected number',
-            location: 'value'
-        });
-    }
-
-
     const { name, currency, type, condition, value, valueType, message } = req.body;
     const newEvent = {
         name, 
@@ -61,14 +37,13 @@ exports.addEvent = (req, res) => {
         valueType, 
         message
     };
-
     return User
         .findByIdAndUpdate(
             req.user.id, 
             {$push: {events: newEvent}}, 
             {new: true})
         .exec()
-        .then(updatedUser => res.status(201).json(updatedUser.apiRepr()))
+        .then(updatedUser => res.status(201).json(updatedUser.apiRepr().events))
         .catch(err => res.status(500).json({message: 'Something went wrong', err}));
 };
 
@@ -76,43 +51,24 @@ exports.addEvent = (req, res) => {
 // Updates existing event for given user
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 exports.updateEvent = (req, res) => {
-    let eventId = req.params.eventId;
-    console.log(eventId);
-    // make sure strings fields are string
-    const stringFields = ['name', 'currency', 'condition', 'valueType', 'message'];
-    const nonStringField = stringFields.find(field =>
-        (field in req.body) && typeof req.body[field] !== 'string'
-    );
-    if (nonStringField) {
-        return res.status(422).json({
-            code: 422,
-            reason: 'ValidationError',
-            message: 'Incorrect field type: expected string',
-            location: nonStringField
-        });
-    }
-    // make sure 'value' is a number
-    if('value' in req.body && typeof(req.body.value) !== 'number') {
-        return res.status(422).json({
-            code: 422,
-            reason: 'ValidationError',
-            message: 'Incorrect field type: expected number',
-            location: 'value'
-        });
-    }
-
-    const updateFields = {};
-    for(let prop in req.body) {
-        updateFields[`events.$.${prop}`] = req.body[prop];
-    }
+    const updated = {};
+    const updateableFields = ['name', 'currency', 'type', 'condition', 'value', 'valueType', 'message'];
+    updateableFields.forEach(field => {
+        if(field in req.body) {
+            updated[`events.$.${field}`] = req.body[field];
+        }
+    });
+    const userId  = req.user.id;
+    const eventId = req.params.eventId;
     return User
         .findOneAndUpdate(
-            {"_id": req.user.id, "events._id":eventId},
-            {$set: updateFields}
+            {"_id": userId, "events._id": eventId},
+            {$set: updated},
+            {new: true}
         )
         .then(user => {
             console.log(user.events.id(eventId));
-            res.status(200).json(user.apiRepr())
+            res.status(201).json(user.apiRepr())
         })
         .catch(err => res.status(500).json({message: 'Internal server error'}));
 }
@@ -128,27 +84,7 @@ exports.deleteEvent = (req, res) => {
             }
         })
         .then(user => {
-            res.status(200).json(user.apiRepr())
+            res.status(201).json(user.apiRepr())
         })
         .catch(err => res.status(500).json({message: 'Internal server error'}));
 }
-
-
-
-// .find({
-//     "events": {
-//         $elemMatch:{_id: ObjectId(eventId)}
-//     }
-// })
-
-// Folder.findOneAndUpdate(
-//     { "_id": folderId, "permissions._id": permission._id },
-//     { 
-//         "$set": {
-//             "permissions.$": permission
-//         }
-//     },
-//     function(err,doc) {
-
-//     }
-// );

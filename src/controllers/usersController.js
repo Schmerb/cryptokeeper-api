@@ -100,6 +100,7 @@ exports.addUser = (req, res) => {
         .count()
         .then(count => {
             console.log('inside find');
+            console.log('count = ', count);
             if (count > 0) {
                 // There is an existing user with the same username
                 return Promise.reject({
@@ -135,24 +136,6 @@ exports.addUser = (req, res) => {
         });
 };
 
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-// Adds user's phone number to their document in db
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-exports.addPhoneNumber = (req, res) => {
-    // logic to check number is formatted properly 
-    // OR
-    // check format on client side
-    const { phoneNumber } = req.body;
-    return User 
-        .findByIdAndUpdate(
-            req.user.id,
-            {$set: {phoneNumber}},
-            {$new: true}
-        )
-        .exec()
-        .then(user => res.json( user.apiRepr()))
-        .catch(err => res.status(500).json({message: 'Internal server error'}));
-};
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 // Returns all of user's data
@@ -175,3 +158,101 @@ exports.getAllUsers = (req, res) => {
         .then(users => res.json(users.map(user => user.apiRepr())))
         .catch(err => res.status(500).json({message: 'Internal server error'}));
 };
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+// Updates user docuement
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+exports.updateUser = (req, res) => {
+    const updated = {};
+    const updateableFields = ['email', 'phoneNumber'];
+    updateableFields.forEach(field => {
+        if(field in req.body) {
+            updated[field] = req.body[field];
+        }
+    });
+
+    return User
+        .findByIdAndUpdate(req.user.id, {$set: updated}, {new: true})
+        .exec()
+        .then(updatedUser => res.status(201).json(updatedUser))
+        .catch(err => res.status(500).json({message: 'Internal server error'}));
+};
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+// Checks for email availability and updates user's account
+// if email is not already taken
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+exports.updateEmail = (req, res) => {
+    const { email } = req.body;
+    return User
+        .find({ email })
+        .count()
+        .exec()
+        .then(count => {
+            if(count > 0) {
+                return Promise.reject({
+                    code: 422,
+                    reason: 'ValidationError',
+                    message: 'An account is already registered with this email, please use a different email address.',
+                    location: 'email'
+                });
+            }
+        })
+        .then(() => {
+            return User
+                .findByIdAndUpdate(req.user.id, {$set: { email }}, {new: true})
+                .exec()
+        })
+        .then(updatedUser => res.status(201).json(updatedUser))
+        .catch(err => {
+            if (err.reason === 'ValidationError') {
+                return res.status(err.code).json(err);
+            }
+            res.status(500).json({code: 500, message: 'Internal server error'});
+        });
+};
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+// Adds / Updates user's phone number which will receive
+// sms notifications
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+exports.updatePhoneNumber = (req, res) => {
+    const { phoneNumber } = req.body;
+    return User
+        .find({ phoneNumber })
+        .count()
+        .exec()
+        .then(count => {
+            if(count > 0) {
+                return Promise.reject({
+                    code: 422,
+                    reason: 'ValidationError',
+                    message: 'This phone number is already associated with an account, please use a different phone number.',
+                    location: 'phoneNumber'
+                });
+            }
+        })
+        .then(() => {
+            return User
+                .findByIdAndUpdate(req.user.id, {$set: { phoneNumber }}, {new: true})
+                .exec()
+        })
+        .then(updatedUser => res.status(201).json(updatedUser))
+        .catch(err => {
+            if (err.reason === 'ValidationError') {
+                return res.status(err.code).json(err);
+            }
+            res.status(500).json({code: 500, message: 'Internal server error'});
+        });
+};
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+// Deletes user's account from db
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+exports.deleteAccount = (req, res) => {
+    return User 
+        .findByIdAndRemove(req.user.id)
+        .exec()
+        .then(() => res.status(204).end())
+        .catch(err => res.status(500).json({message: 'Internal server error'}));
+}

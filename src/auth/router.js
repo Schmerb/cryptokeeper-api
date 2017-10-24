@@ -4,7 +4,7 @@ const express  = require('express'),
       passport = require('passport'),
       jwt      = require('jsonwebtoken');
 
-const config = require('../../config');
+const config = require('config');
 
 const createAuthToken = user => {
     return jwt.sign({user}, config.JWT_SECRET, {
@@ -32,8 +32,6 @@ router.post(
     // expiration
     passport.authenticate('jwt', {session: false}),
     (req, res) => {
-
-        console.log('REQ: ', req);
 
         const authToken = createAuthToken(req.user);
         console.log('Token refreshed for: ', req.user);

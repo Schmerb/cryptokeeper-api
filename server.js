@@ -15,7 +15,7 @@ const {
 
 // CONFIG
 mongoose.Promise = global.Promise;
-const { PORT, DATABASE_URL, CLIENT_ORIGIN } = require('./config');
+const { PORT, DATABASE_URL, CLIENT_ORIGIN } = require('config');
 
 // EXPRESS INSTANCE
 const app = express(); 
@@ -54,11 +54,13 @@ app.use(function(req, res, next) {
 app.use(passport.initialize());
 passport.use(basicStrategy);
 passport.use(jwtStrategy);
-const authenticate = passport.authenticate('jwt', {session: false});
+
+require('services/authenticate').init(passport);
+// const authenticate = passport.authenticate('jwt', {session: false});
 
 // ROUTES
 const { routes } = require('routes');
-routes(app, authenticate);
+routes(app);
 
 // Fallback for all non-valid endpoints
 app.use('*', (req, res) => {
@@ -69,15 +71,15 @@ app.use('*', (req, res) => {
 // assumes runServer has run and set `server` to a server object
 let server;
 
-function runServer() {
+function runServer(databaseUrl=DATABASE_URL, port=PORT) {
     return new Promise((resolve, reject) => {
-        mongoose.connect(DATABASE_URL, err => {
+        mongoose.connect(databaseUrl, err => {
             if (err) {
                 return reject(err);
             }
             server = httpServer
-                .listen(PORT, () => {
-                    console.log(`Your app is listening on port ${PORT}`);
+                .listen(port, () => {
+                    console.log(`Your app is listening on port ${port}`);
                     resolve();
                 })
                 .on('error', err => {

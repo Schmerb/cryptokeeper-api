@@ -9,9 +9,12 @@ const router = express.Router();
 router.use(bodyParser.json());
 
 
-router.get('/', currencyController.getCurrencies);
+router.route('/')
+	.get(currencyController.getCurrencies) // READ -- get currencies
+	.post(currencyController.addCurrency); // CREATE -- add currency
 
-router.post('/', currencyController.addCurrency);
-
+router.route('/:currencyId')
+	.put(currencyController.updateCurrency)     // UPDATE -- update currency info
+	.delete(currencyController.deleteCurrency); // DELETE -- remove currency
 
 module.exports = { router };

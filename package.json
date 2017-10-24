@@ -7,10 +7,12 @@
     "dependencies": {
         "bcryptjs": "^2.4.3",
         "body-parser": "^1.17.2",
+        "busboy-body-parser": "^0.3.0",
         "cookie-parser": "^1.4.3",
         "cors": "^2.8.4",
         "dotenv": "^4.0.0",
         "express": "^4.15.3",
+        "gridfs-stream": "^1.1.1",
         "jsonwebtoken": "^8.0.0",
         "mongoose": "^4.11.5",
         "morgan": "^1.8.2",
@@ -26,11 +28,14 @@
         "browser-sync": "^2.18.13",
         "chai": "^4.1.0",
         "chai-http": "^3.0.0",
+        "chai-like": "^0.2.14",
+        "chai-things": "^0.2.0",
         "faker": "^4.1.0",
         "gulp": "^3.9.1",
         "gulp-minify": "^1.0.0",
         "gulp-nodemon": "^2.2.1",
         "gulp-watch": "^4.3.11",
-        "mocha": "^3.5.0"
+        "mocha": "^3.5.0",
+        "mongodb": "^2.2.33"
     }
 }

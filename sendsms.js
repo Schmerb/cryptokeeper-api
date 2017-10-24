@@ -1,6 +1,6 @@
 'use strict';
 
-const config     = require('./config'),
+const config     = require('config'),
       accountSid = config.TWILIO_ACCOUNT_SID,
       authToken  = config.TWILIO_AUTH_TOKEN;
 

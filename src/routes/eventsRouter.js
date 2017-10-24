@@ -8,17 +8,14 @@ const eventsController = require('controllers/eventsController');
 const router = express.Router();
 router.use(bodyParser.json());
 
-// GET events
-router.get('/', eventsController.getEvents);
 
-// CREATE event
-router.post('/', eventsController.addEvent);
+router.route('/')
+	.get(eventsController.getEvents)  // READ -- get events
+	.post(eventsController.addEvent); // CREATE -- add an event
 
-// UPDATE event
-router.put('/:eventId', eventsController.updateEvent);
-
-// DELETE event
-router.delete('/:eventId', eventsController.deleteEvent);
+router.route('/:eventId')
+	.put(eventsController.updateEvent)	   // UPDATE -- update event
+	.delete(eventsController.deleteEvent); // DELETE -- remove event
 
 
 module.exports = { router };

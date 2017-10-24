@@ -5,6 +5,10 @@ const mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
 
 const commentSchema = mongoose.Schema({
+    currency: {
+        type: String,
+        required: true
+    },
     author: {
         type: String,
         required: true
@@ -14,7 +18,7 @@ const commentSchema = mongoose.Schema({
         required: true
     },
     likes: {type: Number, default: 0},
-    usersLiked: [{type: String, default: ''}],
+    // usersLiked: [{type: ObjectId, ref: User}],
     created: {type: Date, default: Date.now()}
 });
 

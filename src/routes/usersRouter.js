@@ -4,27 +4,40 @@ const express    = require('express'),
       bodyParser = require('body-parser'),
       passport   = require('passport');
 
-// const { auth } = require('./index');
-// console.log('Inside usersROUTER', auth);
-const usersController = require('controllers/usersController');
+const usersController 	     = require('controllers/usersController');
+const { router: fileRouter } = require('./fileRouter');
 
-const router = express.Router();
-
-const jsonParser = bodyParser.json();
-
+const router 	   = express.Router();
+const jsonParser   = bodyParser.json();
 const authenticate = passport.authenticate('jwt', {session: false});
 
 
-// Post to register a new user
-router.post('/', jsonParser, usersController.addUser);
 
-// Post to add user's mobile phone number
-router.post('/me/add-phone-number', jsonParser, usersController.addPhoneNumber);
+router.route('/')
+	.get(authenticate, usersController.getAllUsers) // returns all users
+	.post(jsonParser, usersController.addUser); // registers a new user
 
-// returns all users
-router.get('/',authenticate, usersController.getAllUsers);
+// router.get('/', authenticate, usersController.getAllUsers) // returns all users
+// router.post('/', jsonParser, usersController.addUser); // registers a new user
 
-router.get('/me', usersController.getUser);
+router.route('/me')
+	.all(authenticate)
+	.get(usersController.getUser) // gets currenct user from JWT
+	.delete(usersController.deleteAccount); // removes user's account
+
+// Updates user's email
+router.put('/me/email', [jsonParser, authenticate], usersController.updateEmail);
+
+// Adds/Updates users phone number
+router.put('/me/phone-number', [jsonParser, authenticate], usersController.updatePhoneNumber)
+
+
+router.use('/me/avatar', authenticate, fileRouter);
+
+
+
+
+
 
 module.exports = { router };
 
