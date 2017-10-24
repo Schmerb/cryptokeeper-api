@@ -26,6 +26,7 @@ const UserSchema = mongoose.Schema({
     firstName: {type: String, default: ''},
     lastName: {type: String, default: ''},
     phoneNumber: {type: Number, default: '', unique: true},
+    avatar: {type: String, default: ''},
     currencies: [ Currency ],
     events: [ Events ]
 });
@@ -38,6 +39,7 @@ UserSchema.methods.apiRepr = function() {
         firstName: this.firstName || '',   
         lastName: this.lastName || '',
         phoneNumber: this.phoneNumber || '',
+        avatar: this.avatar || '',
         events: this.events || '',
         currencies: this.currencies || ''
     };

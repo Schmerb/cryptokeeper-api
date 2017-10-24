@@ -19,10 +19,13 @@ conn.once('open', () => {
 
     fileController.init(gfs); // pass in gridfs connection object
 
-    router.get('/', fileController.getIndex);
-    router.post('/', fileController.storeAvatarImg);
+    router.route('/')
+        .get(fileController.getUserAvatar)
+        .post(fileController.storeAvatarImg);
+
     router.get('/:imgId', fileController.getAvatarImg);
     router.delete('/:imgId', fileController.deleteAvatarImg);
+    router.put('/:imgId', fileController.changeAvatarImg);
 });
 
 

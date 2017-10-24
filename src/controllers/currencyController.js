@@ -60,7 +60,7 @@ exports.addCurrency = (req, res) => {
             console.log(updatedUser);
             res.status(201).json(updatedUser.apiRepr().currencies);
         })
-        .catch(err => res.status(500).json({message: 'Something went wrong'}));
+        .catch(err => res.status(500).json({code: 500, message: 'Internal server error'}));
 };
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *

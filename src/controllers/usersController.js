@@ -98,6 +98,7 @@ exports.addUser = (req, res) => {
 
     return User.find({username})
         .count()
+        .exec()
         .then(count => {
             console.log('inside find');
             console.log('count = ', count);

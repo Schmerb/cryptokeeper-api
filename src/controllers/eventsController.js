@@ -29,13 +29,13 @@ exports.addEvent = (req, res) => {
     }
     const { name, currency, type, condition, value, valueType, message } = req.body;
     const newEvent = {
-        name, 
-        currency, 
+        currency,
         type,
         condition, 
         value, 
         valueType, 
-        message
+        name: name.trim(), 
+        message: message.trim()
     };
     return User
         .findByIdAndUpdate(
@@ -44,7 +44,7 @@ exports.addEvent = (req, res) => {
             {new: true})
         .exec()
         .then(updatedUser => res.status(201).json(updatedUser.apiRepr().events))
-        .catch(err => res.status(500).json({message: 'Something went wrong', err}));
+        .catch(err => res.status(500).json({code: 500, message: 'Internal server error'}));
 };
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -82,7 +82,7 @@ exports.deleteEvent = (req, res) => {
             $pull: {
                 'events': {"_id": req.params.eventId}
             }
-        })
+        }, {new: true})
         .then(user => {
             res.status(201).json(user.apiRepr())
         })

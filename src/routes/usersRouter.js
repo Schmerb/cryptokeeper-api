@@ -9,7 +9,7 @@ const { router: fileRouter } = require('./fileRouter');
 
 const router 	   = express.Router();
 const jsonParser   = bodyParser.json();
-const authenticate = passport.authenticate('jwt', {session: false});
+const authenticate = require('services/authenticate').authenticate();
 
 
 
@@ -31,7 +31,7 @@ router.put('/me/email', [jsonParser, authenticate], usersController.updateEmail)
 // Adds/Updates users phone number
 router.put('/me/phone-number', [jsonParser, authenticate], usersController.updatePhoneNumber)
 
-
+// Hanldes storage of avatar profile image uploads
 router.use('/me/avatar', authenticate, fileRouter);
 
 
