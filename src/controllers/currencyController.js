@@ -15,8 +15,11 @@ exports.getCurrencies = (req, res) => {
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 // Creates new currency and updates User document in db
 // for current user
+//
+// @return      Returns the newly added currency
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 exports.addCurrency = (req, res) => {
+    // console.log('NODE', req.body);
     const requiredFields = ['type', 'amount'];
     const missingField = requiredFields.find(field => !(field in req.body));
 
@@ -45,6 +48,8 @@ exports.addCurrency = (req, res) => {
         });
     }
 
+    // console.log('REACT REQ', req.body);
+
     const { type, amount, buyPrice } = req.body;
     const newCurrency = { type, amount };
     if(buyPrice) {
@@ -57,14 +62,18 @@ exports.addCurrency = (req, res) => {
             {new: true})
         .exec()
         .then(updatedUser => {
-            console.log(updatedUser);
-            res.status(201).json(updatedUser.apiRepr().currencies);
+            // console.log(updatedUser);
+            let coins = updatedUser.currencies;
+            let newCurrency = coins[coins.length - 1];
+            res.status(201).json(newCurrency);
         })
-        .catch(err => res.status(500).json({code: 500, message: 'Internal server error'}));
+        .catch(err => res.status(500).json({code: 500, message: 'Internal server error', err}));
 };
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 // Updates currency
+//
+// @returns     all currencies including updated one
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 exports.updateCurrency = (req, res) => {
 
@@ -85,22 +94,25 @@ exports.updateCurrency = (req, res) => {
         )
         .exec()
         .then(updatedUser => {
-            console.log(updatedUser);
-            res.status(201).json(updatedUser.apiRepr().currencies);
+            // let updatedCurrency = updatedUser.currencies.id(currencyId);
+            // console.log('updatedCurrency:', updatedCurrency);
+            res.status(201).json(updatedUser.currencies);
         })
         .catch(err => res.status(500).json({message: 'Something went wrong'}));
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 // Deletes currency
+//
+// @returns     all currencies except removed one
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 exports.deleteCurrency = (req, res) => {
-    return User.
-        findByIdAndUpdate(req.user.id, {
+    return User
+        .findByIdAndUpdate(req.user.id, {
             $pull: {
                 'currencies': {"_id": req.params.currencyId}
             }
-        })
+        }, {new: true})
         .then(updatedUser => {
             res.status(201).json(updatedUser.apiRepr().currencies);
         })

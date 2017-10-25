@@ -138,9 +138,9 @@ describe('/events API resource', function() {
                         .send(newCurrency)
                 })
                 .then(res => {
-                    console.log(res.body);
                     expect(res).to.have.status(201);
-                    expect(res.body).to.be.an('array').that.contains.something.like(newCurrency);
+                    expect(res.body).to.deep.include(newCurrency);
+                    // expect(res.body).to.be.an('array').that.contains.something.like(newCurrency);
                 });
         });
     });

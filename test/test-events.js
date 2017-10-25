@@ -155,7 +155,8 @@ describe('/events API resource', function() {
                 })
                 .then(res => {
                     expect(res).to.have.status(201);
-                    expect(res.body).to.be.an('array').that.contains.something.like(newEvent);
+                    expect(res.body).to.deep.include(newEvent);
+                    // expect(res.body).to.be.an('Object').that.contains.something.like(newEvent);
                 })
         });
     })

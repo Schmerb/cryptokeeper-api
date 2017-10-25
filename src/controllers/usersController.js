@@ -111,6 +111,20 @@ exports.addUser = (req, res) => {
                     location: 'username'
                 });
             }
+            return User.find({email})
+                .count()
+                .exec()
+        })
+        .then(count => {
+            if (count > 0) {
+                // There is an existing user with the same username
+                return Promise.reject({
+                    code: 422,
+                    reason: 'ValidationError',
+                    message: 'Email already taken',
+                    location: 'email'
+                });
+            }
             // If there is no existing user, hash the password
             return User.hashPassword(password);
         })
@@ -133,7 +147,7 @@ exports.addUser = (req, res) => {
             if (err.reason === 'ValidationError') {
                 return res.status(err.code).json(err);
             }
-            res.status(500).json({code: 500, message: 'Internal server error'});
+            res.status(500).json({code: 500, message: 'Internal server error', err});
         });
 };
 
@@ -161,7 +175,7 @@ exports.getAllUsers = (req, res) => {
 };
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-// Updates user docuement
+// Updates user docuement -- NOT IN USE
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 exports.updateUser = (req, res) => {
     const updated = {};
@@ -178,6 +192,20 @@ exports.updateUser = (req, res) => {
         .then(updatedUser => res.status(201).json(updatedUser))
         .catch(err => res.status(500).json({message: 'Internal server error'}));
 };
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+// Updates user's base currency
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+exports.updateBaseCurrency = (req, res) =>  {
+    const { baseCurrency } = req.body;
+    console.log({baseCurrency});
+    return User
+        .findByIdAndUpdate(req.user.id, {
+            $set: {baseCurrency}
+        }, {new: true})
+        .then(updatedUser => res.status(201).json(updatedUser.apiRepr()))
+        .catch(err => res.status(500).json({message: 'Internal server error'}));
+}
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 // Checks for email availability and updates user's account

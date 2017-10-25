@@ -28,6 +28,9 @@ router.route('/me')
 // Updates user's email
 router.put('/me/email', [jsonParser, authenticate], usersController.updateEmail);
 
+// Updates user's base currency
+router.put('/me/base-currency', [jsonParser, authenticate], usersController.updateBaseCurrency);
+
 // Adds/Updates users phone number
 router.put('/me/phone-number', [jsonParser, authenticate], usersController.updatePhoneNumber)
 

@@ -14,6 +14,8 @@ exports.getEvents = (req, res) => {
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 // Adds an event to the user's document in db
+//
+// @returns     New added event object
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 exports.addEvent = (req, res) => {
     // make sure required fields are in req
@@ -43,12 +45,18 @@ exports.addEvent = (req, res) => {
             {$push: {events: newEvent}}, 
             {new: true})
         .exec()
-        .then(updatedUser => res.status(201).json(updatedUser.apiRepr().events))
+        .then(updatedUser => {
+            let events = updatedUser.events;
+            let newResEvent = events[events.length - 1];
+            res.status(201).json(newResEvent);
+        })
         .catch(err => res.status(500).json({code: 500, message: 'Internal server error'}));
 };
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 // Updates existing event for given user
+//
+// @returns     All events including updated one
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 exports.updateEvent = (req, res) => {
     const updated = {};
@@ -66,15 +74,17 @@ exports.updateEvent = (req, res) => {
             {$set: updated},
             {new: true}
         )
-        .then(user => {
-            console.log(user.events.id(eventId));
-            res.status(201).json(user.apiRepr())
+        .then(updatedUser => {
+            // console.log(updatedUser.events.id(eventId));
+            res.status(201).json(updatedUser.apiRepr().events)
         })
         .catch(err => res.status(500).json({message: 'Internal server error'}));
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 // Deletes event from user collection array
+//
+// @returns     All events except event removed
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 exports.deleteEvent = (req, res) => {
     return User.
@@ -84,7 +94,7 @@ exports.deleteEvent = (req, res) => {
             }
         }, {new: true})
         .then(user => {
-            res.status(201).json(user.apiRepr())
+            res.status(201).json(user.apiRepr().events)
         })
         .catch(err => res.status(500).json({message: 'Internal server error'}));
 }
