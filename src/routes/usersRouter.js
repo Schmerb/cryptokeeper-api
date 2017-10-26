@@ -23,16 +23,11 @@ router.route('/')
 router.route('/me')
 	.all(authenticate)
 	.get(usersController.getUser) // gets currenct user from JWT
+	.put(jsonParser, usersController.updateUser) // updates user's email/phone number
 	.delete(usersController.deleteAccount); // removes user's account
-
-// Updates user's email
-router.put('/me/email', [jsonParser, authenticate], usersController.updateEmail);
 
 // Updates user's base currency
 router.put('/me/base-currency', [jsonParser, authenticate], usersController.updateBaseCurrency);
-
-// Adds/Updates users phone number
-router.put('/me/phone-number', [jsonParser, authenticate], usersController.updatePhoneNumber)
 
 // Hanldes storage of avatar profile image uploads
 router.use('/me/avatar', authenticate, fileRouter);
