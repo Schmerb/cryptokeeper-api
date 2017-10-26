@@ -17,14 +17,14 @@ router.route('/')
 	.get(authenticate, usersController.getAllUsers) // returns all users
 	.post(jsonParser, usersController.addUser); // registers a new user
 
-// router.get('/', authenticate, usersController.getAllUsers) // returns all users
-// router.post('/', jsonParser, usersController.addUser); // registers a new user
-
+// 
 router.route('/me')
 	.all(authenticate)
 	.get(usersController.getUser) // gets currenct user from JWT
-	.put(jsonParser, usersController.updateUser) // updates user's email/phone number
 	.delete(usersController.deleteAccount); // removes user's account
+
+// updates user's email/phone number
+router.put('/me/settings', [jsonParser, authenticate], usersController.updateUser);
 
 // Updates user's base currency
 router.put('/me/base-currency', [jsonParser, authenticate], usersController.updateBaseCurrency);
