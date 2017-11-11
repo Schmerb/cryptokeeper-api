@@ -127,6 +127,7 @@ describe('/events API resource', function() {
                     sms: true,
                     email: true
                 },
+                basePrice: 90,
                 condition: 'increased', 
                 value: 100, 
                 valueType: '$', 
