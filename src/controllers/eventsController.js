@@ -18,8 +18,11 @@ exports.getEvents = (req, res) => {
 // @returns     New added event object
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 exports.addEvent = (req, res) => {
+
+    console.log(req.body);
+
     // make sure required fields are in req
-    const requiredFields = ['name', 'currency', 'type', 'condition', 'value', 'valueType', 'message'];
+    const requiredFields = ['name', 'currency', 'basePrice' ,'type', 'condition', 'value', 'valueType', 'message'];
     const missingField = requiredFields.find(field => !(field in req.body));
     if (missingField) {
         return res.status(422).json({
@@ -29,9 +32,10 @@ exports.addEvent = (req, res) => {
             location: missingField
         });
     }
-    const { name, currency, type, condition, value, valueType, message } = req.body;
+    const { name, currency, basePrice, type, condition, value, valueType, message } = req.body;
     const newEvent = {
         currency,
+        basePrice,
         type,
         condition, 
         value, 
@@ -60,12 +64,15 @@ exports.addEvent = (req, res) => {
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 exports.updateEvent = (req, res) => {
     const updated = {};
-    const updateableFields = ['name', 'currency', 'type', 'condition', 'value', 'valueType', 'message'];
+    const updateableFields = ['name', 'currency', 'type', 'condition', 'value', 'valueType', 'message', 'successful'];
     updateableFields.forEach(field => {
         if(field in req.body) {
             updated[`events.$.${field}`] = req.body[field];
         }
     });
+    if(updated !== {}) {
+        updated["events.$.successful"] = false;
+    }
     const userId  = req.user.id;
     const eventId = req.params.eventId;
     return User

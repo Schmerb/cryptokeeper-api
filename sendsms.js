@@ -4,8 +4,6 @@ const config     = require('config'),
       accountSid = config.TWILIO_ACCOUNT_SID,
       authToken  = config.TWILIO_AUTH_TOKEN;
 
-
-
 console.log({accountSid, authToken});
 
 console.log(config.JWT_SECRET);

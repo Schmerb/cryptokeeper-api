@@ -6,7 +6,8 @@ const bodyParser = require('body-parser'),
       mongoose   = require('mongoose'),
       morgan     = require('morgan'),
       passport   = require('passport'),
-      cors       = require('cors'); 
+      cors       = require('cors'),
+      busboyBodyParser = require('busboy-body-parser');
      
 const {
     basicStrategy, 
@@ -17,13 +18,17 @@ const {
 mongoose.Promise = global.Promise;
 const { PORT, DATABASE_URL, CLIENT_ORIGIN } = require('config');
 
+
 // EXPRESS INSTANCE
 const app = express(); 
+
+// CRON jobs
+require('services/cron-jobs');
 
 // SOCKET.IO 
 const httpServer = require('http').Server(app);
 require('services/live-chat')(httpServer);
-require('services/crypto-prices')(httpServer);
+// require('services/crypto-prices')(httpServer);
 
 // LOGGING
 app.use(morgan('common'));
@@ -54,6 +59,9 @@ app.use(function(req, res, next) {
 app.use(passport.initialize());
 passport.use(basicStrategy);
 passport.use(jwtStrategy);
+
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(busboyBodyParser({ limit: '10mb' })); // required for gridFS file store 
 
 require('services/authenticate').init(passport);
 // const authenticate = passport.authenticate('jwt', {session: false});
