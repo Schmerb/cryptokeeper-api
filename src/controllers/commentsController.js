@@ -192,6 +192,7 @@ exports.toggleLikeComment = (req, res) => {
                     break;
                 }
             }
+            console.log('HERE, ', comment);
             if(userAlreadyLikes) {
                 // remove user from array
                 return Comment
@@ -225,6 +226,7 @@ exports.toggleLikeComment = (req, res) => {
                     })
             } else {
                 // add user to array
+                console.log('about to like comment');
                 return Comment
                     .findByIdAndUpdate(commentId, {
                         $addToSet: {
@@ -237,10 +239,13 @@ exports.toggleLikeComment = (req, res) => {
         })
         .then(comment => {
             // Gets api representation of all nested / sub-docs
+            console.log('MADE IT');
+            console.log(comment);
             comment = getApiRepr(comment);
+            console.log(comment);
             res.status(201).json(comment);
         })
-        .catch(err => res.status(500).json({message: 'Internal server error'}));
+        .catch(err => res.status(500).json({message: 'Internal server error', err}));
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -602,7 +607,9 @@ exports.deleteReplyComment = (req, res) => {
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 function getApiRepr(comment) {
     comment = comment.apiRepr();
-    comment.author = comment.author.apiRepr();
+    if(comment.author) { // conditional for mock testing dummy data
+        comment.author = comment.author.apiRepr();
+    }
     comment.usersLiked = comment.usersLiked.map(userLiked => {
         userLiked = userLiked.apiRepr();
         return userLiked;
