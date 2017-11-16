@@ -16,18 +16,22 @@ const replyCommentSchema = mongoose.Schema({
         type: String,
         required: true
     },
+    parentComment: {type: Schema.Types.ObjectId, ref: 'Comment'},
     usersLiked: [{type: Schema.Types.ObjectId, ref: 'User'}],
-    created: {type: Date, default: Date.now()}
-});
+    usersDisliked: [{type: Schema.Types.ObjectId, ref: 'User'}]
+}, { timestamps: true });
 
 replyCommentSchema.methods.apiRepr = function() {
     return {
         id: this._id,
         author: this.author || '',
         content: this.content || '',
+        parentComment: this.parentComment || '',
         likes: this.usersLiked.length || '',
         usersLiked: this.usersLiked || [],
-        created: this.created || ''
+        usersDisliked: this.usersDisliked || [],
+        createdAt: this.createdAt || '',
+        updatedAt: this.updatedAt || '',
     };
 };
 

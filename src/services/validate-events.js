@@ -13,7 +13,7 @@ module.exports = (users, prices) => {
         const { events } = user;
         events.forEach(event => {
             if(!event.successful) {
-                validate(user, event, prices);
+                // validate(user, event, prices);
             } else {
                 console.log('EVENT ALREADY SUCCESSFUL');
             }

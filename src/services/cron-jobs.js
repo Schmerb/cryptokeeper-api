@@ -11,8 +11,8 @@ const base = process.hrtime();
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 const eventsTask = cron.schedule('*/10 * * * * *', () => {
     let t = process.hrtime();
-    console.log('running a task every 5s');
-    console.log(`it has been ${t[0] - base[0]}s since first run`);
+    // console.log('running a task every 5s');
+    // console.log(`it has been ${t[0] - base[0]}s since first run`);
     getPrices(validate); // get prices and use callback to validate 
                          // events against new prices
 });
@@ -25,7 +25,7 @@ eventsTask.start();
 // on the events passing in currenct coin prices. 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 function validate(prices) {
-    console.log(prices);
+    // console.log(prices);
     // Loop through every event for everyt user and print event
     return User
         .find({
