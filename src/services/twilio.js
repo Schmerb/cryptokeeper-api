@@ -2,7 +2,8 @@
 
 const config     = require('config'),
       accountSid = config.TWILIO_ACCOUNT_SID,
-      authToken  = config.TWILIO_AUTH_TOKEN;
+      authToken  = config.TWILIO_AUTH_TOKEN,
+      twilioPhoneNumber = config.TWILIO_PHONE_NUMBER;
 
 const client = require('twilio')(accountSid, authToken);
 

@@ -1,7 +1,7 @@
 const { User } = require('models/users');
 
 const twilio    = require('./twilio');
-// const sendEmail = require('./send-email');
+const sendEmail = require('./send-email');
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 // gets event objects from users and runs validation 
@@ -18,7 +18,7 @@ module.exports = (users, prices) => {
                 console.log('EVENT ALREADY SUCCESSFUL');
             }
             // used for testing
-            // validate(user, event, prices);
+            validate(user, event, prices);
         });
     });
 };
@@ -118,22 +118,27 @@ function getCurrencyPrice(prices, currency) {
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 function sendAlert(username, email, phoneNumber, event) {
     let { name, currency, basePrice, type, condition, value, valueType, message, _id: id } = event;
-    if(type.sms) {
-        // sends SMS
-        console.log('SMS');
-        console.log('user: ', username);
-        console.log('phone: ', phoneNumber);
-        console.log(message);
-        twilio({phoneNumber, message});
-    }
-    if(type.email) {
-        // sends email
-        console.log('Email');
-        console.log('user: ', username);
-        console.log('email: ', email);
-        console.log(message);
-        // sendEmail({email, message});
-    }
+
+    type.sms ? twilio({phoneNumber, message}) : null;
+    type.email ? sendEmail({email, name, message, username}) : null;
+
+
+    // if(type.sms) {
+    //     // sends SMS
+    //     console.log('SMS');
+    //     console.log('user: ', username);
+    //     console.log('phone: ', phoneNumber);
+    //     console.log('message: ', message);
+    //     twilio({phoneNumber, message});
+    // }
+    // if(type.email) {
+    //     // sends email
+    //     console.log('Email');
+    //     console.log('user: ', username);
+    //     console.log('email: ', email);
+    //     console.log('message: ', message);
+    //     sendEmail({email, name, message, username});
+    // }
 
     // grab event in db and update it as successful
     console.log('EventID:', id);

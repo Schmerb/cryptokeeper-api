@@ -1,21 +1,39 @@
-const request = require('request');
+const { MAILGUN_API_KEY } = require('../config');
 
-// module.exports = (data) => {
-//     const { email, username } = data;
-//     let URL = `https://formspree.io/${email}`;
+const domain = 'mail.cryptokeeper.co';
+const mailgun = require('mailgun-js')({apiKey: MAILGUN_API_KEY, domain: domain});
+
+
+module.exports = (data) => {
+    const { email, username, message, name } = data;
+
+    var data = {
+        from: 'Account Support <support@mail.cryptokeeper.co>',
+        to: email,
+        subject: `CryptoKeeper Alert: ${name}`,
+        text: message
+    };
+    
+    mailgun.messages().send(data, (error, body) => {
+        if(error) 
+            return console.log('Error: ', error);
+            
+        console.log('Email Sent: ');
+        console.log(body);
+    });
+};
+
+
+// const domain = 'mail.cryptokeeper.co';
+// const mailgun = require('mailgun-js')({apiKey: MAILGUN_API_KEY, domain: domain});
+
+// var data = {
+//     from: 'Account Support <support@mail.cryptokeeper.co>',
+//     to: 'mikeschmerbeck@gmail.com',
+//     subject: 'Hello',
+//     text: 'Testing some Mailgun awesomness!'
 // };
 
-const api_key = 'key-f797305e0f59c3eedc0c041ee92f5ee8';
-const domain = 'https://app.mailgun.com/app/domains/sandbox6f0afaf4955544129e017b147787a352.mailgun.org';
-const mailgun = require('mailgun-js')({apiKey: api_key, domain: domain});
-
-var data = {
-    from: 'Excited User <me@samples.mailgun.org>',
-    to: 'mikeschmerbeck@gmail.com',
-    subject: 'Hello',
-    text: 'Testing some Mailgun awesomness!'
-};
-   
-mailgun.messages().send(data, function (error, body) {
-    console.log(body);
-});
+// mailgun.messages().send(data, function (error, body) {
+//     console.log(body);
+// });
