@@ -14,13 +14,13 @@ module.exports = (data) => {
         text: message
     };
     
-    mailgun.messages().send(data, (error, body) => {
-        if(error) 
-            return console.log('Error: ', error);
+    // mailgun.messages().send(data, (error, body) => {
+    //     if(error) 
+    //         return console.log('Error: ', error);
             
-        console.log('Email Sent: ');
-        console.log(body);
-    });
+    //     console.log('Email Sent: ');
+    //     console.log(body);
+    // });
 };
 
 
