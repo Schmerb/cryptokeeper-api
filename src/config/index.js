@@ -7,11 +7,11 @@ exports.TEST_DATABASE_URL =
     global.TEST_DATABASE_URL ||
     'mongodb://localhost/react-test-db';
 
-exports.CLIENT_ORIGIN = 'https://www.cryptokeeper.co';
+// PORT
 exports.PORT = process.env.PORT || 8080;
-
+    
 // Client --> Netlify
-exports.CLIENT_ORIGIN = 'https://cryptokeeper.netlify.com';
+exports.CLIENT_ORIGIN = 'https://www.cryptokeeper.co';
 exports.JWT_SECRET = process.env.JWT_SECRET;
 exports.JWT_EXPIRY = process.env.JWT_EXPIRY || '7d'; 
 
