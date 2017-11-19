@@ -28,15 +28,15 @@ module.exports = (users, prices) => {
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 function validate(user, event, prices) {
     const { username, email, phoneNumber } = user;
-    // console.log('\n\n');
-    // console.log(username);
-    // console.log(email || '{no email}');
-    // console.log(phoneNumber || '{no number}');
+    console.log('\n\n');
+    console.log(username);
+    console.log(email || '{no email}');
+    console.log(phoneNumber || '{no number}');
 
-    // console.log('EVENT:');
-    // console.group();
-    // console.log(JSON.stringify(event, null, 3));
-    // console.groupEnd();
+    console.log('EVENT:');
+    console.group();
+    console.log(JSON.stringify(event, null, 3));
+    console.groupEnd();
 
     // 1) get current coin price
     // 2) get base currency price
@@ -44,8 +44,8 @@ function validate(user, event, prices) {
 
     let { currency, basePrice, type, condition, value, valueType, message } = event;
     // gets the matching currency price
-    let price = getCurrencyPrice(prices, currency);
-    // console.log('PRICE: ', price);
+    const price = prices[currency].USD;
+    console.log('PRICE: ', price);
     switch(condition) {
         case 'reach':
             if(price >= value) {
@@ -97,18 +97,6 @@ function validate(user, event, prices) {
                 }
             }
             break;
-    }
-}
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-// Looks through prices for matching currency and returns
-// that value   
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-function getCurrencyPrice(prices, currency) {
-    for(let coin of prices) {
-        if(coin.hasOwnProperty(currency)) {
-            return coin.USD;
-        }
     }
 }
 
