@@ -13,6 +13,9 @@ const EventSchema = mongoose.Schema({
         type: String, 
         required: true
     },
+    basePrice: {
+        type: Number
+    },
     type: {
         sms: {type: Boolean, default: true},
         email: {type: Boolean, default: true}
@@ -32,6 +35,10 @@ const EventSchema = mongoose.Schema({
     message: {
         type: String, 
         required: true
+    },
+    successful: {
+        type: Boolean,
+        default: false
     }
 });
 

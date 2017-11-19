@@ -1,6 +1,10 @@
 'use strict';
 
+const ObjectId = require('mongoose').Types.ObjectId;
+
 const { Comment } = require('models/comments');
+
+const populateQuery = 'author usersLiked usersDisliked replyComments.author replyComments.usersLiked replyComments.usersDisliked';
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 // Returns all comments for specified crypto currency,
@@ -8,35 +12,37 @@ const { Comment } = require('models/comments');
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 exports.getComments = (req, res) => {
     const full = req.query.full;
+    console.log('FULL: ', full);
     let author          = '',
         replyAuthor     = '',
+        usersLiked      = '',
         displayFullInfo = false;
     if(full !== undefined & full == 'true') {
-        author = 'author';
+        author      = 'author';
         replyAuthor = 'replyComments.author';
+        usersLiked  = 'usersLiked';
         displayFullInfo = true;
     }
     return Comment
         .find({currency: req.params.currency})
-        .populate(author)
-        .populate(replyAuthor)
+        // .populate('author')
+        // .populate('usersLiked')
+        // .populate('usersDisliked')
+        // .populate('replyComments.author')
+        // .populate('replyComments.usersLiked')
+        // .populate('replyComments.usersDisliked')
+        .populate(populateQuery)
         .then(comments => {
+            // Loop through all sub docs and get correct API Representation
             comments = comments.map(comment => {
-                comment = comment.apiRepr();
-                // if query full=true then return full api representation of User
-                comment.author = displayFullInfo ? comment.author.apiRepr() : comment.author;
-                comment.replyComments = comment.replyComments.map(replyComment => {
-                    // maps over each replycomment and gets Api Representation for ReplyComments and Users
-                    replyComment = replyComment.apiRepr();
-                    // if query full=true then return full api representation of User
-                    replyComment.author = displayFullInfo ? replyComment.author.apiRepr() : replyComment.author;
-                    return replyComment;
-                })
+                // Gets api representation of all nested / sub-docs
+                comment = getApiRepr(comment);
                 return comment;
             });
-            res.status(200).json({comments})
+            console.log('\n\nComments should be populated\n\n', comments);
+            res.status(200).json({comments});
         })
-        .catch(err => res.status(500).json({message: 'Internal server error'}));
+        .catch(err => res.status(500).json({message: 'Internal server error', err}));
 };
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -57,6 +63,7 @@ exports.getComment = (req, res) => {
         .findById(req.params.commentId)
         .populate(author)
         .populate(replyAuthor)
+        .populate('usersLiked usersDisliked')
         .then(comment => {
             // get api representation for all Comments 
             comment = comment.apiRepr();
@@ -99,6 +106,7 @@ exports.addComment = (req, res) => {
     }
     const { currency, content } = req.body;
     const author = req.user.id;
+    console.log({currency});
     return Comment
         .create({
             currency,
@@ -112,73 +120,9 @@ exports.addComment = (req, res) => {
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 // Updates comment
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-exports.likeComment = (req, res) => {
-    const commentId = req.params.commentId;
-    return Comment
-        .findByIdAndUpdate(commentId, {
-            $addToSet: {
-                usersLiked: req.user.id
-            }
-        })
-        .exec()
-        .then(comment => {
-            res.status(200).json(comment.apiRepr());
-        })
-        .catch(err => res.status(500).json({message: 'Internal server error'}));
-}
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-// Gets users who like a comment
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-exports.getUsersLiked = (req, res) => {
-    return Comment
-        .findById(req.params.commentId)
-        .populate('usersLiked')
-        .exec()
-        .then(comment => res.status(200).json({usersLiked: comment.apiRepr().usersLiked}))
-        .catch(err => res.status(500).json({message: 'Internal server error'}));
-}
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-// Adds user to reply comments usersLiked array
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-exports.likeReplyComment = (req, res) => {
-    const commentId      = req.params.commentId,
-          replyCommentId = req.params.replyCommentId;
-    return Comment
-        .findOneAndUpdate(
-            {"_id": commentId, "replyComments._id": replyCommentId},
-            {$addToSet: {
-                'replyComments.$.usersLiked': req.user.id
-            }},
-            {new: true})
-        .exec()
-        .then(replyComment => res.status(201).json(replyComment))
-        .catch(err => res.status(500).json({message: 'Internal server error'}));
-}
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-// Gets users who liked reply comment
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-exports.getReplyUsersLiked = (req, res) => {
-    const commentId      = req.params.commentId,
-          replyCommentId = req.params.replyCommentId; 
-    return Comment
-        .findById(commentId)
-        .populate('replyComments.usersLiked')
-        .exec()
-        .then(comment => {
-            const usersLiked = comment.replyComments.id(replyCommentId).usersLiked;
-            res.status(201).json({usersLiked});
-        })
-        .catch(err => res.status(500).json({message: 'Internal server error'}));
-}
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-// Updates comment
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 exports.addReplyComment = (req, res) => {
     // make sure required fields are in req
+    console.log(req.body);
     const requiredFields = ['currency', 'content'];
     const missingField = requiredFields.find(field => !(field in req.body));
     if (missingField) {
@@ -195,17 +139,407 @@ exports.addReplyComment = (req, res) => {
     const replyComment = {
         author,
         currency,
-        content
+        content,
+        parentComment: commentId
     };
     return Comment
         .findByIdAndUpdate(
             commentId, 
             {$push: {replyComments: replyComment}},
             {new: true})
+        .populate(populateQuery)
         .exec()
-        .then(comment => res.status(201).json(comment))
+        .then(comment => {
+            // Gets api representation of all nested / sub-docs
+            comment = getApiRepr(comment);
+            res.status(201).json(comment);
+        })
         .catch(err => res.status(500).json({message: 'Internal server error'}));
 }
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+// Toggles user likes on comment
+//
+// 1) find comment
+// 2) check if user is in likes array
+// 3) if yes, remove user ID
+// 4) if no, check if in dislikes array
+//          yes --> a) remove user form dislikes array
+//                  b) add user to likes array
+//          no --> add user to likes array
+// 5) return updated comment thread
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+exports.toggleLikeComment = (req, res) => {
+    const commentId = req.params.commentId;
+
+    return Comment
+        .findById(commentId)
+        .populate('usersLiked')
+        .populate('usersDisliked')
+        .exec()
+        .then(comment => {
+            let userAlreadyLikes = false;
+            for(let user of comment.usersLiked) {
+                if(user.username === req.user.username) {
+                    userAlreadyLikes = true;
+                    break;
+                }
+            }
+            let userAlreadyDislikes = false;
+            for(let user of comment.usersDisliked) {
+                if(user.username === req.user.username) {
+                    userAlreadyDislikes = true;
+                    break;
+                }
+            }
+            console.log('HERE, ', comment);
+            if(userAlreadyLikes) {
+                // remove user from array
+                return Comment
+                    .findByIdAndUpdate(commentId, {
+                        $pull: {
+                            usersLiked: req.user.id
+                        }
+                    }, {new: true})
+                    .populate(populateQuery) // POPULATES sub-docs
+                    .exec()
+            } else if(userAlreadyDislikes) {
+                // a) remove user from dislikes array
+                return Comment
+                    .findByIdAndUpdate(commentId, {
+                        $pull: {
+                            usersDisliked: req.user.id
+                        }
+                    }, {new: true})
+                    .populate(populateQuery) // POPULATES sub-docs
+                    .exec()
+                    .then(res => {
+                        // b) AND THEN add user to array
+                        return Comment
+                            .findByIdAndUpdate(commentId, {
+                                $addToSet: {
+                                    usersLiked: req.user.id
+                                }
+                            }, {new: true})
+                            .populate(populateQuery) // POPULATES sub-docs
+                            .exec()
+                    })
+            } else {
+                // add user to array
+                console.log('about to like comment');
+                return Comment
+                    .findByIdAndUpdate(commentId, {
+                        $addToSet: {
+                            usersLiked: req.user.id
+                        }
+                    }, {new: true})
+                    .populate(populateQuery) // POPULATES sub-docs
+                    .exec()
+            }
+        })
+        .then(comment => {
+            // Gets api representation of all nested / sub-docs
+            console.log('MADE IT');
+            console.log(comment);
+            comment = getApiRepr(comment);
+            console.log(comment);
+            res.status(201).json(comment);
+        })
+        .catch(err => res.status(500).json({message: 'Internal server error', err}));
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+// Adds current user to array of dislikes
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+exports.toggleDislikeComment = (req, res) => {
+    const commentId = req.params.commentId;
+
+    return Comment
+        .findById(commentId)
+        .populate('usersLiked')
+        .populate('usersDisliked')
+        .exec()
+        .then(comment => {
+            let userAlreadyDislikes = false;
+            for(let user of comment.usersDisliked) {
+                if(user.username === req.user.username) {
+                    userAlreadyDislikes = true;
+                    break;
+                }
+            }
+            let userAlreadyLikes = false;
+            for(let user of comment.usersLiked) {
+                if(user.username === req.user.username) {
+                    userAlreadyLikes = true;
+                    break;
+                }
+            }
+            if(userAlreadyDislikes) {
+                // remove user from dislikes array
+                console.log('user already dislikes, remove from array');
+                return Comment
+                    .findByIdAndUpdate(commentId, {
+                        $pull: {
+                            usersDisliked: req.user.id
+                        }
+                    }, {new: true})
+                    .populate(populateQuery) // POPULATES sub-docs
+                    .exec()
+            } else if(userAlreadyLikes) {
+                console.log('user already likes so need to remove first');
+                // a) remove user from likes array
+                return Comment
+                    .findByIdAndUpdate(commentId, {
+                        $pull: {
+                            usersLiked: req.user.id
+                        }
+                    }, {new: true})
+                    .populate(populateQuery) // POPULATES sub-docs
+                    .exec()
+                    .then(res => {
+                        // b) AND THEN add user to dislikes array
+                        return Comment
+                            .findByIdAndUpdate(commentId, {
+                                $addToSet: {
+                                    usersDisliked: req.user.id
+                                }
+                            }, {new: true})
+                            .populate(populateQuery) // POPULATES sub-docs
+                            .exec()
+                    })
+            } else {
+                // add user to dislikes array
+                return Comment
+                    .findByIdAndUpdate(commentId, {
+                        $addToSet: {
+                            usersDisliked: req.user.id
+                        }
+                    }, {new: true})
+                    .populate(populateQuery) // POPULATES sub-docs
+                    .exec()
+            }
+    })
+    .then(comment => {
+        // Gets api representation of all nested / sub-docs
+        console.log(comment);
+        comment = getApiRepr(comment);
+        res.status(201).json(comment);
+    })
+    .catch(err => res.status(500).json({message: 'Internal server error', err}));
+}
+
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+// Gets users who like a comment
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+exports.getUsersLiked = (req, res) => {
+    return Comment
+        .findById(req.params.commentId)
+        .populate('usersLiked')
+        .populate('usersDisliked')
+        .exec()
+        .then(comment => res.status(200).json({usersLiked: comment.apiRepr().usersLiked}))
+        .catch(err => res.status(500).json({message: 'Internal server error'}));
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+// Adds user to reply comments usersLiked array
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+exports.toggleLikeReplyComment = (req, res) => {
+    const commentId      = req.params.commentId,
+          replyCommentId = req.params.replyCommentId;
+
+    return Comment
+        .findOne({"_id": commentId, "replyComments._id": replyCommentId})
+        .populate('replyComments.usersLiked')
+        .populate('replyComments.usersDisliked')
+        .exec()
+        .then(comment => {
+            let userAlreadyLikes    = false;
+            let userAlreadyDislikes = false;
+            for(let replyComment of comment.replyComments) {
+                if(replyComment.id === replyCommentId) {
+                    for(let user of replyComment.usersLiked) {
+                        if(user.username === req.user.username) {
+                            userAlreadyLikes = true;
+                            break;
+                        }
+                    }
+                    for(let user of replyComment.usersDisliked) {
+                        console.log('checking ', user);
+                        if(user.username === req.user.username) {
+                            userAlreadyDislikes = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            if(userAlreadyLikes) {
+                // remove user id from array
+                console.log('remove user id from array');
+                return Comment
+                    .findOneAndUpdate(
+                        {"_id": commentId, "replyComments._id": replyCommentId},
+                        {$pull: {
+                            'replyComments.$.usersLiked': req.user.id
+                        }},
+                        {new: true})
+                    .populate(populateQuery)
+                    .exec()
+            } else if(userAlreadyDislikes) {
+                    // a) remove user from dislikes array
+                    console.log('removing user from dislikes');
+                    return Comment
+                        .findOneAndUpdate(
+                            {"_id": commentId, "replyComments._id": replyCommentId},
+                            {$pull: {
+                                'replyComments.$.usersDisliked': req.user.id
+                            }},
+                            {new: true})
+                        .populate(populateQuery)
+                        .exec()
+                        .then(res => {
+                            // b) add user id to likes array
+                            return Comment
+                                .findOneAndUpdate(
+                                    {"_id": commentId, "replyComments._id": replyCommentId},
+                                    {$addToSet: {
+                                        'replyComments.$.usersLiked': req.user.id
+                                    }},
+                                    {new: true})
+                                .populate(populateQuery)
+                                .exec()
+                        })
+            } else {
+                // add user id to array
+                console.log('add user id to array');
+                return Comment
+                    .findOneAndUpdate(
+                        {"_id": commentId, "replyComments._id": replyCommentId},
+                        {$addToSet: {
+                            'replyComments.$.usersLiked': req.user.id
+                        }},
+                        {new: true})
+                    .populate(populateQuery)
+                    .exec()
+            }
+        })
+        .then(comment => {
+            // Gets api representation of all nested / sub-docs
+            comment = getApiRepr(comment);
+            res.status(201).json(comment)
+        })
+        .catch(err => res.status(500).json({message: 'Internal server error'}));
+
+    
+        
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+// Adds user to reply comments usersDisliked array
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+exports.toggleDislikeReplyComment = (req, res) => {
+    const commentId      = req.params.commentId,
+          replyCommentId = req.params.replyCommentId;
+
+    return Comment
+        .findOne({"_id": commentId, "replyComments._id": replyCommentId})
+        .populate('replyComments.usersLiked')
+        .populate('replyComments.usersDisliked')
+        .exec()
+        .then(comment => {
+            let userAlreadyLikes    = false;
+            let userAlreadyDislikes = false;
+            for(let replyComment of comment.replyComments) {
+                if(replyComment.id === replyCommentId) {
+                    for(let user of replyComment.usersDisliked) {
+                        if(user.username === req.user.username) {
+                            userAlreadyDislikes = true;
+                            break;
+                        }
+                    }
+                    for(let user of replyComment.usersLiked) {
+                        if(user.username === req.user.username) {
+                            userAlreadyLikes = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            if(userAlreadyDislikes) {
+                // remove user from dislikes array
+                return Comment
+                    .findOneAndUpdate(
+                        {"_id": commentId, "replyComments._id": replyCommentId},
+                        {$pull: {
+                            'replyComments.$.usersDisliked': req.user.id
+                        }},
+                        {new: true})
+                    .populate(populateQuery)
+                    .exec()
+            } else if(userAlreadyLikes) {
+                // a) remove user from likes array to start
+                console.log('removing user from likes');
+                return Comment
+                    .findOneAndUpdate(
+                        {"_id": commentId, "replyComments._id": replyCommentId},
+                        {$pull: {
+                            'replyComments.$.usersLiked': req.user.id
+                        }},
+                        {new: true})
+                    .populate(populateQuery)
+                    .exec()
+                    .then(res => {
+                        // b) add user id to dislikes array
+                        return Comment
+                            .findOneAndUpdate(
+                                {"_id": commentId, "replyComments._id": replyCommentId},
+                                {$addToSet: {
+                                    'replyComments.$.usersDisliked': req.user.id
+                                }},
+                                {new: true})
+                            .populate(populateQuery)
+                            .exec()
+                    })
+            } else {
+                // add user to dislikes array
+                return Comment
+                    .findOneAndUpdate(
+                        {"_id": commentId, "replyComments._id": replyCommentId},
+                        {$addToSet: {
+                            'replyComments.$.usersDisliked': req.user.id
+                        }},
+                        {new: true})
+                    .populate(populateQuery)
+                    .exec()
+            }
+        })
+        .then(comment => {
+            // Gets api representation of all nested / sub-docs
+            comment = getApiRepr(comment);
+            res.status(201).json(comment)
+        })
+        .catch(err => res.status(500).json({message: 'Internal server error'}));
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+// Gets users who liked reply comment
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+exports.getReplyUsersLiked = (req, res) => {
+    const commentId      = req.params.commentId,
+          replyCommentId = req.params.replyCommentId; 
+    return Comment
+        .findById(commentId)
+        .populate('replyComments.usersLiked')
+        .populate('replyComments.usersDisliked')
+        .exec()
+        .then(comment => {
+            const usersLiked = comment.replyComments.id(replyCommentId).usersLiked;
+            res.status(201).json({usersLiked});
+        })
+        .catch(err => res.status(500).json({message: 'Internal server error'}));
+}
+
+
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 // Deletes comment from db
@@ -256,13 +590,47 @@ exports.deleteReplyComment = (req, res) => {
             }
             console.log('INSIDE');
             return Comment
-                .findByIdAndUpdate(commentId, {
-                    $pull : {
-                        'replyComments': {"_id": replyCommentId}
-                    }
-                }, {new: true})
-                .exec()
+                .findByIdAndUpdate(
+                    commentId, {
+                        $pull : {
+                            'replyComments': {"_id": replyCommentId}
+                        }
+                    }, {new: true})
+                    .exec()
         })
         .then(user => res.status(201).json(user.apiRepr()))
         .catch(err => res.status(500).json({message: 'Internal server error'}));
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+// Gets the API representation for all nested / sub-docs
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+function getApiRepr(comment) {
+    comment = comment.apiRepr();
+    if(comment.author) { // conditional for mock testing dummy data
+        comment.author = comment.author.apiRepr();
+    }
+    comment.usersLiked = comment.usersLiked.map(userLiked => {
+        userLiked = userLiked.apiRepr();
+        return userLiked;
+    });
+    // comment.usersDisliked = comment.usersDisliked.map(userDisliked => {return userDisliked.apiRepr()});
+    comment.usersDisliked = comment.usersDisliked.map(userDisliked => {
+        userDisliked = userDisliked.apiRepr();
+        return userDisliked;
+    });
+    comment.replyComments = comment.replyComments.map(replyComment => {
+        replyComment = replyComment.apiRepr();
+        replyComment.author = replyComment.author.apiRepr();
+        replyComment.usersLiked = replyComment.usersLiked.map(userLiked => {
+            userLiked = userLiked.apiRepr();
+            return userLiked;
+        });
+        replyComment.usersDisliked = replyComment.usersDisliked.map(userDisliked => {
+            userDisliked = userDisliked.apiRepr();
+            return userDisliked;
+        });
+        return replyComment;
+    });
+    return comment;
 }

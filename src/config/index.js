@@ -9,9 +9,16 @@ exports.TEST_DATABASE_URL =
 
 exports.CLIENT_ORIGIN = 'https://www.cryptokeeper.co';
 exports.PORT = process.env.PORT || 8080;
+
+// Client --> Netlify
+exports.CLIENT_ORIGIN = 'https://cryptokeeper.netlify.com';
 exports.JWT_SECRET = process.env.JWT_SECRET;
 exports.JWT_EXPIRY = process.env.JWT_EXPIRY || '7d'; 
 
 // Twilio
-exports.TWILIO_ACCOUNT_SID = process.env.TWILIO_ACCOUNT_SID;
-exports.TWILIO_AUTH_TOKEN  = process.env.TWILIO_AUTH_TOKEN;
+exports.TWILIO_PHONE_NUMBER = process.env.TWILIO_PHONE_NUMBER;
+exports.TWILIO_ACCOUNT_SID  = process.env.TWILIO_ACCOUNT_SID;
+exports.TWILIO_AUTH_TOKEN   = process.env.TWILIO_AUTH_TOKEN;
+
+// Mailgun
+exports.MAILGUN_API_KEY = process.env.MAILGUN_API_KEY;

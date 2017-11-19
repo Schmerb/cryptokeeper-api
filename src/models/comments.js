@@ -18,19 +18,22 @@ const commentSchema = mongoose.Schema({
         required: true
     },
     usersLiked: [{type: Schema.Types.ObjectId, ref: 'User'}],
-    replyComments: [ ReplyComments ],
-    created: {type: Date, default: Date.now()}
-});
+    usersDisliked: [{type: Schema.Types.ObjectId, ref: 'User'}],
+    replyComments: [ ReplyComments ]
+}, { timestamps: true });
 
 commentSchema.methods.apiRepr = function() {
     return {
         id: this._id,
+        currency: this.currency,
+        content: this.content,
         author: this.author || '',
-        content: this.content || '',
         likes: this.usersLiked.length || '',
         usersLiked: this.usersLiked || [],
+        usersDisliked: this.usersDisliked || [],
         replyComments: this.replyComments || [],
-        created: this.created || ''
+        createdAt: this.createdAt || '',
+        updatedAt: this.updatedAt || ''
     };
 };
 

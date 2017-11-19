@@ -1,7 +1,8 @@
 'use strict';
 
 const express    = require('express'),
-      bodyParser = require('body-parser'),
+	  bodyParser = require('body-parser'),
+	  busboyBodyParser = require('busboy-body-parser'),
       passport   = require('passport');
 
 const usersController 	     = require('controllers/usersController');
@@ -28,6 +29,8 @@ router.put('/me/settings', [jsonParser, authenticate], usersController.updateUse
 
 // Updates user's base currency
 router.put('/me/base-currency', [jsonParser, authenticate], usersController.updateBaseCurrency);
+
+// router.use(busboyBodyParser({ limit: '10mb' })); // required for gridFS file store 
 
 // Hanldes storage of avatar profile image uploads
 router.use('/me/avatar', authenticate, fileRouter);

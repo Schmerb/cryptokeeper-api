@@ -67,7 +67,7 @@ exports.getUserAvatar = (req, res) => {
                 });
             });
         })
-        .catch(err => res.status(500).json({message: 'Internal server error'}));
+        .catch(err => res.status(500).json({message: 'Internal server error', err}));
 };
 
 // * * * * * * * * * * * * * * *
@@ -141,7 +141,8 @@ exports.deleteAvatarImg = (req, res) => {
 // * * * * * * * * * * * * * * *
 exports.storeAvatarImg = (req, res) => {
 
-    // console.log(req);
+    console.log(req.headers);
+    console.log('req.files', req.files);
 
     let part = req.files.file;
     let writeStream = gfs.createWriteStream({
@@ -164,6 +165,7 @@ exports.storeAvatarImg = (req, res) => {
                     user
                 });
             })
+            .catch(err => res.status(500).json({message: 'Internal server error', err}));
     });
     writeStream.write(part.data);
     writeStream.end();
