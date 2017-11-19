@@ -60,11 +60,11 @@ app.use(passport.initialize());
 passport.use(basicStrategy);
 passport.use(jwtStrategy);
 
+require('services/authenticate').init(passport);
+
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(busboyBodyParser({ limit: '10mb' })); // required for gridFS file store 
 
-require('services/authenticate').init(passport);
-// const authenticate = passport.authenticate('jwt', {session: false});
 
 // ROUTES
 const { routes } = require('routes');
