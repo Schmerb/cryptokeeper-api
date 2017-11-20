@@ -59,7 +59,7 @@ exports.getUserAvatar = (req, res) => {
                         }
                         let fileExt = temp.reverse().join('');
                         let img = `data:image/${fileExt};base64,` + Buffer(data).toString('base64');
-                        res.status(200).json({url: img});
+                        res.status(200).json({url: img, avatarId: user.avatar});
                     });
             
                     readstream.on('error', (err) => {
@@ -134,9 +134,17 @@ exports.deleteAvatarImg = (req, res) => {
     gfs.remove(objId, function (err) {
         if (err) return handleError(err);
         console.log('success');
-        res.status(204).json({
-            status: 'success, img removed from db'
-        });
+        return User
+            .findByIdAndUpdate(req.user.id, 
+                {$set: {avatar: ""}},
+                {new: true}
+            )
+            .exec()
+            .then(updated => {
+                console.log('UPDATED:, ', updated);
+                res.sendStatus(204);
+            })
+            .catch(err => res.status(500).json({message: 'Internal server error', err}));
     });
 };
 
