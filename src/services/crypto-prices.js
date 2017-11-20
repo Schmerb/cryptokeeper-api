@@ -15,7 +15,7 @@ exports.getPrices = (cb) => {
     // function httpGet(url, callback) {
     //     const options = {
     //         url :  url,
-    //         json : true
+    //         json : true 
     //     };
     //     request(options,
     //         function(err, res, body) {

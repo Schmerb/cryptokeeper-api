@@ -4,15 +4,13 @@ const router     = require('express').Router(),
       fs         = require('fs'),
       mongoose   = require('mongoose'),
       Grid       = require('gridfs-stream');
-    //   busboyBodyParser = require('busboy-body-parser');
 
 const fileController = require('controllers/fileController');
 
+// busboybody parser at server.js --> app
     
 let conn   = mongoose.connection;
 Grid.mongo = mongoose.mongo;
-
-// router.use(busboyBodyParser({ limit: '10mb' })); // required for gridFS file store 
 
 conn.once('open', () => {
     const gfs = Grid(conn.db);
@@ -23,9 +21,10 @@ conn.once('open', () => {
         .get(fileController.getUserAvatar)
         .post(fileController.storeAvatarImg);
 
-    router.get('/:imgId', fileController.getAvatarImg);
-    router.delete('/:imgId', fileController.deleteAvatarImg);
-    router.put('/:imgId', fileController.changeAvatarImg);
+    router.route('/:imgId')
+        .get(fileController.getAvatarImg)    
+        .delete(fileController.deleteAvatarImg)
+        .put(fileController.changeAvatarImg);
 });
 
 

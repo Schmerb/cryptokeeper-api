@@ -58,7 +58,7 @@ exports.getUserAvatar = (req, res) => {
                     }
                     let fileExt = temp.reverse().join('');
                     let img = `data:image/${fileExt};base64,` + Buffer(data).toString('base64');
-                    res.json({url: img});
+                    res.status(200).json({url: img});
                 });
         
                 readstream.on('error', (err) => {
@@ -119,9 +119,9 @@ exports.getAvatarImg = (req, res) => {
     });
 };
 
-// * * * * * * * * * * * * * * *
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 // Removes img from db
-// * * * * * * * * * * * * * * *
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 exports.deleteAvatarImg = (req, res) => {
     let objId = {
         _id: ObjectID(req.params.imgId)
@@ -136,40 +136,73 @@ exports.deleteAvatarImg = (req, res) => {
     });
 };
 
-// * * * * * * * * * * * * * * *
-// Stores image in db
-// * * * * * * * * * * * * * * *
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+// Stores/updates image in db
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 exports.storeAvatarImg = (req, res) => {
+    // 1) Checks if user has a current avatar uploaded
+    //     yes --> deletes avatar file/chunks
+    // 2) Then adds new image to db
+    const { username } = req.user;
 
-    console.log(req.headers);
-    console.log('req.files', req.files);
+    return User
+        .findOne({ username })
+        .exec()
+        .then(user => {
+            const { avatar } = user;
+            let part = req.files.file;
+            let writeStream = gfs.createWriteStream({
+                filename: 'img_' + part.name,
+                mode: 'w',
+                content_type: part.mimetype
+            });
 
-    let part = req.files.file;
-    let writeStream = gfs.createWriteStream({
-        filename: 'img_' + part.name,
-        mode: 'w',
-        content_type: part.mimetype
-    });
-
-    writeStream.on('close', (file) => {
-        return User
-            .findByIdAndUpdate(req.user.id, 
-                {$set: {avatar: file._id}},
-                {new: true}
-            )
-            .exec()
-            .then(user => {
-                return res.status(200).send({
-                    message: 'Success',
-                    file: file,
-                    user
+            if(avatar.length > 0) {
+                console.log('NEED TO REMOVE FIRST');
+                const objId = {
+                    _id: ObjectID(avatar)
+                };
+                // remove avatar first
+                gfs.remove(objId, function (err) {
+                    if (err) return handleError(err);
+                    console.log('successfully deleted existing img');
+                    // then add new avatar file
+                    writeStream.on('close', (file) => updateUserAvatar(req, res, file));
+                    writeStream.write(part.data);
+                    writeStream.end();
                 });
-            })
-            .catch(err => res.status(500).json({message: 'Internal server error', err}));
-    });
-    writeStream.write(part.data);
-    writeStream.end();
+            } else {
+                console.log('ADD FILE ASAP');
+                // No previous avatar, add file immediately 
+                writeStream.on('close', (file) => updateUserAvatar(req, res, file));
+                writeStream.write(part.data);
+                writeStream.end();
+            }
+        })
+        .catch(err => res.status(500).json({message: 'Internal server error'}));
 };
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+// Finds user in db and updates their doc with
+// new avatar id
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+function updateUserAvatar(req, res, file) {
+    return User
+        .findByIdAndUpdate(req.user.id, 
+            {$set: {avatar: file._id}},
+            {new: true}
+        )
+        .exec()
+        .then(user => {
+            console.log('successfully added new img');
+            return res.status(200).send({
+                message: 'Success',
+                file: file,
+                user
+            });
+        })
+        .catch(err => res.status(500).json({message: 'Internal server error', err}));
+}
 
 // * * * * * * * * * * * * * * *
 // Changes image in db
