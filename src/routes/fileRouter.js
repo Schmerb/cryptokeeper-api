@@ -5,6 +5,8 @@ const router     = require('express').Router(),
       mongoose   = require('mongoose'),
       Grid       = require('gridfs-stream');
 
+const authenticate = require('services/authenticate').authenticate();
+
 const fileController = require('controllers/fileController');
 
 // busboybody parser at server.js --> app
@@ -18,13 +20,13 @@ conn.once('open', () => {
     fileController.init(gfs); // pass in gridfs connection object
 
     router.route('/')
-        .get(fileController.getUserAvatar)
-        .post(fileController.storeAvatarImg);
+        .get(authenticate, fileController.getUserAvatar)
+        .post(authenticate, fileController.storeAvatarImg);
 
     router.route('/:imgId')
         .get(fileController.getAvatarImg)    
-        .delete(fileController.deleteAvatarImg)
-        .put(fileController.changeAvatarImg);
+        .delete(authenticate, fileController.deleteAvatarImg)
+        .put(authenticate, fileController.changeAvatarImg);
 });
 
 

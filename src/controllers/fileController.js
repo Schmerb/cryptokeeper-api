@@ -25,47 +25,51 @@ exports.getUserAvatar = (req, res) => {
         .exec()
         .then(user => {
             // let objId = ObjectID(req.params.imgId);
-            gfs.files.find(
-                ObjectID(user.avatar)
-            ).toArray((err, files) => {
-        
-                if (files.length === 0) {
-                    return res.status(400).send({
-                        message: 'File not found'
-                    });
-                }
-                
-                let data = [];
-                let readstream = gfs.createReadStream({
-                    filename: files[0].filename
-                });
-        
-                readstream.on('data', (chunk) => {
-                    data.push(chunk);
-                });
-        
-                readstream.on('end', () => {
-                    data = Buffer.concat(data);
-                    let imgName = files[0].filename;
-        
-                    // parses file type extension from file name
-                    let temp = [];
-                    for (let i = imgName.length - 1; i >= 0; i--) {
-                        if (imgName[i] === '.') {
-                            break;
-                        }
-                        temp.push(imgName[i]);
+            if(user.avatar.length > 0) {
+                gfs.files.find(
+                    ObjectID(user.avatar)
+                ).toArray((err, files) => {
+            
+                    if (files.length === 0) {
+                        return res.status(400).send({
+                            message: 'File not found'
+                        });
                     }
-                    let fileExt = temp.reverse().join('');
-                    let img = `data:image/${fileExt};base64,` + Buffer(data).toString('base64');
-                    res.status(200).json({url: img});
+                    
+                    let data = [];
+                    let readstream = gfs.createReadStream({
+                        filename: files[0].filename
+                    });
+            
+                    readstream.on('data', (chunk) => {
+                        data.push(chunk);
+                    });
+            
+                    readstream.on('end', () => {
+                        data = Buffer.concat(data);
+                        let imgName = files[0].filename;
+            
+                        // parses file type extension from file name
+                        let temp = [];
+                        for (let i = imgName.length - 1; i >= 0; i--) {
+                            if (imgName[i] === '.') {
+                                break;
+                            }
+                            temp.push(imgName[i]);
+                        }
+                        let fileExt = temp.reverse().join('');
+                        let img = `data:image/${fileExt};base64,` + Buffer(data).toString('base64');
+                        res.status(200).json({url: img});
+                    });
+            
+                    readstream.on('error', (err) => {
+                        console.log('An error occurred!', err);
+                        throw err;
+                    });
                 });
-        
-                readstream.on('error', (err) => {
-                    console.log('An error occurred!', err);
-                    throw err;
-                });
-            });
+            } else {
+                res.status(400).json({message: 'User does not have an avatar image.'});
+            }
         })
         .catch(err => res.status(500).json({message: 'Internal server error', err}));
 };
@@ -109,7 +113,7 @@ exports.getAvatarImg = (req, res) => {
             }
             let fileExt = temp.reverse().join('');
             let img = `data:image/${fileExt};base64,` + Buffer(data).toString('base64');
-            res.json({url: img});
+            res.json({url: img, avatarId: req.params.imgId});
         });
 
         readstream.on('error', (err) => {

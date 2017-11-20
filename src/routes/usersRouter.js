@@ -33,7 +33,8 @@ router.put('/me/base-currency', [jsonParser, authenticate], usersController.upda
 // router.use(busboyBodyParser({ limit: '10mb' })); // required for gridFS file store 
 
 // Hanldes storage of avatar profile image uploads
-router.use('/me/avatar', authenticate, fileRouter);
+router.use('/me/avatar', fileRouter);
+// router.get('/avatar/:imgId', fileRouter);
 
 
 
