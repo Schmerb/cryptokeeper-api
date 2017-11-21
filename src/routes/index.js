@@ -21,7 +21,7 @@ function routes(app) {
     app.use('/api/events/', authenticate, eventsRouter);
     app.use(['/api/currencies/', '/api/currencies/:id'], authenticate, currencyRouter);
     app.use('/api/comments', commentsRouter);
-    app.use('/twilio', twilioRouter);
+    app.use('/api/twilio', twilioRouter);
     app.use('/crypto', cryptoRouter);
 
     // A protected endpoint which needs a valid JWT to access it

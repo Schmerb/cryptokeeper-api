@@ -10,8 +10,8 @@ router.use(bodyParser.json());
 
 router.get('/', twilioController.sendTextMessage)
 
-router.post('/verify-phone/:phoneNumber', twilioController.requestVerificationCode);
-
+router.post('/verify-phone/start/:phoneNumber', twilioController.requestVerificationCode);
+router.post('/verify-phone/check/:phoneNumber/:code', twilioController.verifyCode);
 
 
 module.exports = { router };
