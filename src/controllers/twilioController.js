@@ -1,5 +1,7 @@
 'use strict';
 
+const request = require('request');
+
 const config     = require('config'),
       accountSid = config.TWILIO_ACCOUNT_SID,
       authToken  = config.TWILIO_AUTH_TOKEN;
@@ -29,3 +31,9 @@ function sendMessage(number) {
         console.log(message);
     });
 }
+
+exports.requestVerificationCode = (req, res) => {
+    const phoneNumber = req.param.phoneNumber;
+    const VERIFICATION_URL = 'https://ugliest-society-9291.twil.io/start?';
+    request();
+};
