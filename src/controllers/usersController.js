@@ -178,7 +178,7 @@ exports.getAllUsers = (req, res) => {
 // Updates user docuement -- NOT IN USE
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 exports.updateUser = (req, res) => {
-    console.log(req.body);
+    console.log('\n\nBODY', req.body);
 
     const requiredFields = ['email', 'phoneNumber'];
     const missingField = requiredFields.find(field => !(field in req.body));
@@ -234,7 +234,14 @@ exports.updateUser = (req, res) => {
                 .exec()
         })
         .then(updatedUser => res.status(201).json(updatedUser.apiRepr()))
-        .catch(err => res.status(500).json({message: 'Internal server error', err}));
+        .catch(err => {
+            // Forward validation errors on to the client, otherwise give a 500
+            // error because something unexpected has happened
+            if (err.reason === 'ValidationError') {
+                return res.status(err.code).json(err);
+            }
+            res.status(500).json({code: 500, message: 'Internal server error', err});
+        });
 };
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *

@@ -19,6 +19,7 @@ exports.JWT_EXPIRY = process.env.JWT_EXPIRY || '7d';
 exports.TWILIO_PHONE_NUMBER = process.env.TWILIO_PHONE_NUMBER;
 exports.TWILIO_ACCOUNT_SID  = process.env.TWILIO_ACCOUNT_SID;
 exports.TWILIO_AUTH_TOKEN   = process.env.TWILIO_AUTH_TOKEN;
+exports.TWILIO_AUTHY_KEY    = process.env.TWILIO_AUTHY_KEY;
 
 // Mailgun
 exports.MAILGUN_API_KEY = process.env.MAILGUN_API_KEY;

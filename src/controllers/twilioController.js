@@ -5,7 +5,8 @@ const request = require('request');
 const config     = require('config'),
       accountSid = config.TWILIO_ACCOUNT_SID,
       authToken  = config.TWILIO_AUTH_TOKEN,
-      authyKey   = 'VIahCfvG3EScZa8zgbwQuksBNv93KsAp';
+      authyKey   = config.TWILIO_AUTHY_KEY;
+
 
 const client = require('twilio')(accountSid, authToken);
 
