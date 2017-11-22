@@ -7,8 +7,6 @@ const mailgun = require('mailgun-js')({apiKey: MAILGUN_API_KEY, domain: domain})
 module.exports = (data) => {
     const { email, username, message, name, currentPrice, currency } = data;
 
-    let body = ``
-
     var data = {
         from: 'CryptoKeeper Services <support@mail.cryptokeeper.co>',
         to: email,

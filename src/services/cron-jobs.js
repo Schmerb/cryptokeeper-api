@@ -9,7 +9,7 @@ const base = process.hrtime();
 // Task that runs every X minutes to get current coin prices
 // and check each user event condition 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-const eventsTask = cron.schedule('*/20 * * * * *', () => {
+const eventsTask = cron.schedule('*/10 * * * *', () => {
     let t = process.hrtime();
     // console.log('running a task every 5s');
     // console.log(`it has been ${t[0] - base[0]}s since first run`);
