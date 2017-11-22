@@ -32,6 +32,7 @@ exports.getComments = (req, res) => {
         // .populate('replyComments.usersLiked')
         // .populate('replyComments.usersDisliked')
         .populate(populateQuery)
+        .sort({'createdAt': 1})
         .then(comments => {
             // Loop through all sub docs and get correct API Representation
             comments = comments.map(comment => {
