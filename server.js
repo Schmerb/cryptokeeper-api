@@ -33,6 +33,8 @@ require('services/live-chat')(httpServer);
 // LOGGING
 app.use(morgan('common'));
 
+// console.log('\n\n\nCLIENT ORIGIN: ', CLIENT_ORIGIN);
+
 // CORS
 app.use(
     cors({
@@ -44,6 +46,8 @@ app.use(
         ]
     })
 );
+
+
 
 app.use(function(req, res, next) {
       res.header('Access-Control-Allow-Origin', '*');

@@ -9,7 +9,7 @@ exports.TEST_DATABASE_URL =
 
 // PORT
 exports.PORT = process.env.PORT || 8080;
-    
+   
 // Client --> Netlify
 exports.CLIENT_ORIGIN = 'https://www.cryptokeeper.co';
 exports.JWT_SECRET = process.env.JWT_SECRET;
@@ -23,3 +23,6 @@ exports.TWILIO_AUTHY_KEY    = process.env.TWILIO_AUTHY_KEY;
 
 // Mailgun
 exports.MAILGUN_API_KEY = process.env.MAILGUN_API_KEY;
+
+
+// cors-anywhere.herokuapp.com
