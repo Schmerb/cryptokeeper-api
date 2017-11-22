@@ -33,13 +33,14 @@ require('services/live-chat')(httpServer);
 // LOGGING
 app.use(morgan('common'));
 
-// console.log('\n\n\nCLIENT ORIGIN: ', CLIENT_ORIGIN);
+console.log('\n\n\nCLIENT ORIGIN: ', CLIENT_ORIGIN);
 
 // CORS
 app.use(
     cors({
         origin: [  // Whitelist 
             CLIENT_ORIGIN,
+            'http://www.cryptokeeper.co',
             'http://192.168.1.112:3000',
             'http://172.20.10.2:3000',
             'http://localhost:3000'
