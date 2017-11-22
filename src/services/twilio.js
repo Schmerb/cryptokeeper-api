@@ -8,12 +8,18 @@ const config     = require('config'),
 const client = require('twilio')(accountSid, authToken);
 
 module.exports = (data) => {
-    const { phoneNumber, message } = data;
+    const { phoneNumber, message, currentPrice, currency, username } = data;
     
-    // client.messages.create({
-    //     body: message,
-    //     to: `+1${phoneNumber}`,  // Text this number
-    //     from: '+16093725347' // From a valid Twilio number
-    // })
-    // .then((message) => console.log('yo ', message.sid));
+    let body = `Hey ${username}!\n\n` +
+                `${message}\n\n` +
+                `Currency: ${currency}\n` + 
+                `Current Price: ${currentPrice}\n\n` +
+                `Checkout the current market --> www.cryptokeeper.co`;
+
+    client.messages.create({
+        body: body,
+        to: `+1${phoneNumber}`,  // Text this number
+        from: twilioPhoneNumber // From a valid Twilio number
+    })
+    .then((message) => console.log('yo ', message.sid));
 };

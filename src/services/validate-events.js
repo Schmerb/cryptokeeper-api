@@ -17,8 +17,6 @@ module.exports = (users, prices) => {
             } else {
                 console.log('EVENT ALREADY SUCCESSFUL');
             }
-            // used for testing
-            // validate(user, event, prices);
         });
     });
 };
@@ -50,14 +48,14 @@ function validate(user, event, prices) {
         case 'reach':
             if(price >= value) {
                 // console.log('SUCCESS! ', message);
-                sendAlert(username, email, phoneNumber, event);
+                sendAlert(username, email, phoneNumber, price, event);
                 // send sms & email
             }
             break;
         case 'dropTo':
             if(price <= value) {
                 // console.log('SUCCESS! ', message);
-                sendAlert(username, email, phoneNumber, event);
+                sendAlert(username, email, phoneNumber, price, event);
                 // send sms & email
             }
             break;
@@ -66,7 +64,7 @@ function validate(user, event, prices) {
                 if(basePrice - price >= value) {
                     // console.log('SUCCESS! ', message);
                     // send sms & email
-                    sendAlert(username, email, phoneNumber, event);
+                    sendAlert(username, email, phoneNumber, price, event);
                 }
             } else { // valueType === %
                 let diff = (price / basePrice) * 100;
@@ -75,7 +73,7 @@ function validate(user, event, prices) {
                 if(100 - diff >= value) {
                     // console.log('SUCCESS! ', message);
                     // send sms & email
-                    sendAlert(username, email, phoneNumber, event);
+                    sendAlert(username, email, phoneNumber, price, event);
                 }
             }
             break;
@@ -84,7 +82,7 @@ function validate(user, event, prices) {
                 if(price - basePrice >= value) {
                     // console.log('SUCCESS! ', message);
                     // send sms & email
-                    sendAlert(username, email, phoneNumber, event);
+                    sendAlert(username, email, phoneNumber, price, event);
                 }
             } else {
                 let diff = (price / basePrice) * 100;
@@ -93,7 +91,7 @@ function validate(user, event, prices) {
                 if(diff - 100 >= value) {
                     // console.log('SUCCESS! ', message);
                     // send sms & email
-                    sendAlert(username, email, phoneNumber, event);
+                    sendAlert(username, email, phoneNumber, price, event);
                 }
             }
             break;
@@ -104,11 +102,11 @@ function validate(user, event, prices) {
 // Sends correct alert type, either SMS Twilio text message
 // or email
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-function sendAlert(username, email, phoneNumber, event) {
+function sendAlert(username, email, phoneNumber, currentPrice, event) {
     let { name, currency, basePrice, type, condition, value, valueType, message, _id: id } = event;
 
-    type.sms ? twilio({phoneNumber, message}) : null;
-    type.email ? sendEmail({email, name, message, username}) : null;
+    type.sms ? twilio({phoneNumber, message, username, currentPrice, currency}) : null;
+    type.email ? sendEmail({email, name, message, username, currentPrice, currency}) : null;
 
     // grab event in db and update it as successful
     // console.log('EventID:', id);
