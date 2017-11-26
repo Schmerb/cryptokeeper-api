@@ -17,15 +17,13 @@ module.exports = function (httpServer) {
 			userName = user;
 			userId = `_${count}`;
 			users[userId] = user;
-			io.emit('loggedin', users); // update current online users list
+			io.emit('updated users', users); // update current online users list
 			socket.broadcast.emit('user status', `${userName} joined the room`); // tell room who joined
 		
 			count++;
 		})
 		  
 		socket.on('chat message', msg => {
-			console.log(`message: ${msg.content}`);
-			console.log(`user: ${msg.user}`);
 			socket.broadcast.emit('chat message', msg); 
 		});
 
@@ -35,7 +33,13 @@ module.exports = function (httpServer) {
 
 		socket.on('disconnect', () => {
 			delete users[userId];
-			io.emit('loggedin', users);
+			io.emit('updated users', users); // update current online users list
+			socket.broadcast.emit('user status', `${userName} has left the room`);
+		});
+
+		socket.on('sign user out', () => {
+			delete users[userId];
+			io.emit('updated users', users); // update current online users list
 			socket.broadcast.emit('user status', `${userName} has left the room`);
 		});
 	});
