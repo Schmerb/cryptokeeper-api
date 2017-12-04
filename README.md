@@ -40,7 +40,7 @@ This API provides services to send notifications as text messages via [Twilio](h
     * [bcryptjs](https://www.npmjs.com/package/bcryptjs)
     * [Socket.IO](https://socket.io/)
     * [node-cron](https://github.com/kelektiv/node-cron)
-    * [twilio.js](https://www.npmjs.com/package/twilio)
+    * [twilio.jsga](https://www.npmjs.com/package/twilio)
     * [mailgun-js](https://www.npmjs.com/package/mailgun-js)
 * Development:
     * [Mocha.js](https://mochajs.org/)
