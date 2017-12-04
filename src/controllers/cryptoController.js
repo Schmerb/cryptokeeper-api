@@ -10,7 +10,7 @@ function httpGet(url, callback) {
         url :  url,
         json : true
     };
-    request(options,
+    request(options,  
         function(err, res, body) {
             callback(err, body);
         }
@@ -33,4 +33,4 @@ exports.getPrice = (req, res) => {
         console.log(_res);
         res.send(_res);
     });
-};
+}; 
