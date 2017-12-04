@@ -19,8 +19,6 @@ exports.getEvents = (req, res) => {
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 exports.addEvent = (req, res) => {
 
-    console.log(req.body);
-
     // make sure required fields are in req
     const requiredFields = ['name', 'currency', 'basePrice' ,'type', 'condition', 'value', 'valueType', 'message'];
     const missingField = requiredFields.find(field => !(field in req.body));
@@ -82,7 +80,6 @@ exports.updateEvent = (req, res) => {
             {new: true}
         )
         .then(updatedUser => {
-            // console.log(updatedUser.events.id(eventId));
             res.status(201).json(updatedUser.apiRepr().events)
         })
         .catch(err => res.status(500).json({message: 'Internal server error'}));

@@ -100,8 +100,6 @@ exports.addUser = (req, res) => {
         .count()
         .exec()
         .then(count => {
-            console.log('inside find');
-            console.log('count = ', count);
             if (count > 0) {
                 // There is an existing user with the same username
                 return Promise.reject({
@@ -129,7 +127,6 @@ exports.addUser = (req, res) => {
             return User.hashPassword(password);
         })
         .then(hash => {
-            console.log('before create user');
             return User.create({
                 email,
                 username,
@@ -178,7 +175,6 @@ exports.getAllUsers = (req, res) => {
 // Updates user docuement -- NOT IN USE
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 exports.updateUser = (req, res) => {
-    console.log('\n\nBODY', req.body);
 
     const requiredFields = ['email', 'phoneNumber'];
     const missingField = requiredFields.find(field => !(field in req.body));

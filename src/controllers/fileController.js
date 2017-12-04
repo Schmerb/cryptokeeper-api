@@ -133,7 +133,6 @@ exports.deleteAvatarImg = (req, res) => {
 
     gfs.remove(objId, function (err) {
         if (err) return handleError(err);
-        console.log('success');
         return User
             .findByIdAndUpdate(req.user.id, 
                 {$set: {avatar: ""}},
@@ -141,7 +140,6 @@ exports.deleteAvatarImg = (req, res) => {
             )
             .exec()
             .then(updated => {
-                console.log('UPDATED:, ', updated);
                 res.sendStatus(204);
             })
             .catch(err => res.status(500).json({message: 'Internal server error', err}));
@@ -170,21 +168,18 @@ exports.storeAvatarImg = (req, res) => {
             });
 
             if(avatar.length > 0) {
-                console.log('NEED TO REMOVE FIRST');
                 const objId = {
                     _id: ObjectID(avatar)
                 };
                 // remove avatar first
                 gfs.remove(objId, function (err) {
                     if (err) return handleError(err);
-                    console.log('successfully deleted existing img');
                     // then add new avatar file
                     writeStream.on('close', (file) => updateUserAvatar(req, res, file));
                     writeStream.write(part.data);
                     writeStream.end();
                 });
             } else {
-                console.log('ADD FILE ASAP');
                 // No previous avatar, add file immediately 
                 writeStream.on('close', (file) => updateUserAvatar(req, res, file));
                 writeStream.write(part.data);
@@ -206,7 +201,6 @@ function updateUserAvatar(req, res, file) {
         )
         .exec()
         .then(user => {
-            console.log('successfully added new img');
             return res.status(200).send({
                 message: 'Success',
                 file: file,
@@ -229,7 +223,6 @@ exports.changeAvatarImg = (req, res) => {
 
     gfs.remove(objId, function (err) {
         if (err) return handleError(err);
-        console.log('successfully deleted existing img');
         let part = req.files.file;
         let writeStream = gfs.createWriteStream({
             filename: 'img_' + part.name,

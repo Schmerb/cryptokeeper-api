@@ -28,7 +28,6 @@ require('services/cron-jobs');
 // SOCKET.IO 
 const httpServer = require('http').Server(app);
 require('services/live-chat')(httpServer);
-// require('services/crypto-prices')(httpServer);
 
 // LOGGING
 app.use(morgan('common'));

@@ -43,7 +43,7 @@ function validate(user, event, prices) {
     let { currency, basePrice, type, condition, value, valueType, message } = event;
     // gets the matching currency price
     const price = prices[currency].USD;
-    console.log('PRICE: ', price);
+    // console.log('PRICE: ', price);
     switch(condition) {
         case 'reach':
             if(price >= value) {

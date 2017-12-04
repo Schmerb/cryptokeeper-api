@@ -19,7 +19,6 @@ exports.getCurrencies = (req, res) => {
 // @return      Returns the newly added currency
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 exports.addCurrency = (req, res) => {
-    // console.log('NODE', req.body);
     const requiredFields = ['type', 'amount'];
     const missingField = requiredFields.find(field => !(field in req.body));
 
@@ -48,8 +47,6 @@ exports.addCurrency = (req, res) => {
         });
     }
 
-    // console.log('REACT REQ', req.body);
-
     const { type, amount, buyPrice } = req.body;
     const newCurrency = { type, amount };
     if(buyPrice) {
@@ -62,7 +59,6 @@ exports.addCurrency = (req, res) => {
             {new: true})
         .exec()
         .then(updatedUser => {
-            // console.log(updatedUser);
             let coins = updatedUser.currencies;
             let newCurrency = coins[coins.length - 1];
             res.status(201).json(newCurrency);
@@ -94,8 +90,6 @@ exports.updateCurrency = (req, res) => {
         )
         .exec()
         .then(updatedUser => {
-            // let updatedCurrency = updatedUser.currencies.id(currencyId);
-            // console.log('updatedCurrency:', updatedCurrency);
             res.status(201).json(updatedUser.currencies);
         })
         .catch(err => res.status(500).json({message: 'Something went wrong'}));

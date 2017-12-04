@@ -29,7 +29,6 @@ function routes(app) {
         '/api/protected',
         authenticate,
         (req, res) => {
-            console.log(req.user);
             return res.json({
                 data: 'rosebud'
             });
