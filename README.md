@@ -40,7 +40,7 @@ This API provides services to send notifications as text messages via [Twilio](h
     * [bcryptjs](https://www.npmjs.com/package/bcryptjs)
     * [Socket.IO](https://socket.io/)
     * [node-cron](https://github.com/kelektiv/node-cron)
-    * [twilio.jsga](https://www.npmjs.com/package/twilio)
+    * [twilio.js](https://www.npmjs.com/package/twilio)
     * [mailgun-js](https://www.npmjs.com/package/mailgun-js)
 * Development:
     * [Mocha.js](https://mochajs.org/)
@@ -62,3 +62,16 @@ This API provides services to send notifications as text messages via [Twilio](h
         * Allows for multiple screens to reload live and all interactions are in synchronization, mirroring actions across every browser on any device located on local network.
         * compatible with Gulp
     * Gulp + gulp-nodemon + Browsersync combine to streamline the entire development process
+
+
+## Notes
+* Hosted on [Heroku](https://heroku.com/)'s Cloud Application Platform 
+    * (PaaS) platform as a service
+* Cloud MongoDB hosting provided by [mLab](https://mlab.com/)
+* All tests handled by Mocha.js using Chaijs and chai-http assertion libraries to test API endpoints
+    * Used by TravisCI to test master branch before deploying to production environment on Heroku
+* A cron job is dispatched every 10min to check all user event conditions against the current cryptocurrency prices. If a condition passes, notifications are sent to users via sms text message using [Twilio](https://www.twilio.com/)  services and / or via email using [Mailgun](https://www.mailgun.com/) services.
+* User authentication is handled using Passport.js with a JWT authentication token strategy. User requests must provide a valid JWT auth token in header to access protected endpoints. Token renews itself automatically and expires after 7 days.
+* Image files are stored in base64 binary encoding using GridFS, a MongoDB specification that saves larger files in chunks and combines these chunks on request to serve the original file back to client. Video file storage to be implemented soon.
+* APIs
+  * Market data is powered by the [Cryptocompare](https://www.cryptocompare.com/) API and websocket
