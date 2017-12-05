@@ -245,7 +245,6 @@ exports.updateUser = (req, res) => {
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 exports.updateBaseCurrency = (req, res) =>  {
     const { baseCurrency } = req.body;
-    console.log({baseCurrency});
     return User
         .findByIdAndUpdate(req.user.id, {
             $set: {baseCurrency}

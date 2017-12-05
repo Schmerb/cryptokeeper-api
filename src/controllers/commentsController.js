@@ -12,7 +12,6 @@ const populateQuery = 'author usersLiked usersDisliked replyComments.author repl
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 exports.getComments = (req, res) => {
     const full = req.query.full;
-    console.log('FULL: ', full);
     let author          = '',
         replyAuthor     = '',
         usersLiked      = '',
@@ -40,7 +39,6 @@ exports.getComments = (req, res) => {
                 comment = getApiRepr(comment);
                 return comment;
             });
-            console.log('\n\nComments should be populated\n\n', comments);
             res.status(200).json({comments});
         })
         .catch(err => res.status(500).json({message: 'Internal server error', err}));
@@ -107,7 +105,6 @@ exports.addComment = (req, res) => {
     }
     const { currency, content } = req.body;
     const author = req.user.id;
-    console.log({currency});
     return Comment
         .create({
             currency,
@@ -123,7 +120,6 @@ exports.addComment = (req, res) => {
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 exports.addReplyComment = (req, res) => {
     // make sure required fields are in req
-    console.log(req.body);
     const requiredFields = ['currency', 'content'];
     const missingField = requiredFields.find(field => !(field in req.body));
     if (missingField) {
@@ -193,7 +189,6 @@ exports.toggleLikeComment = (req, res) => {
                     break;
                 }
             }
-            console.log('HERE, ', comment);
             if(userAlreadyLikes) {
                 // remove user from array
                 return Comment
@@ -227,7 +222,6 @@ exports.toggleLikeComment = (req, res) => {
                     })
             } else {
                 // add user to array
-                console.log('about to like comment');
                 return Comment
                     .findByIdAndUpdate(commentId, {
                         $addToSet: {
@@ -240,10 +234,7 @@ exports.toggleLikeComment = (req, res) => {
         })
         .then(comment => {
             // Gets api representation of all nested / sub-docs
-            console.log('MADE IT');
-            console.log(comment);
             comment = getApiRepr(comment);
-            console.log(comment);
             res.status(201).json(comment);
         })
         .catch(err => res.status(500).json({message: 'Internal server error', err}));
@@ -277,7 +268,6 @@ exports.toggleDislikeComment = (req, res) => {
             }
             if(userAlreadyDislikes) {
                 // remove user from dislikes array
-                console.log('user already dislikes, remove from array');
                 return Comment
                     .findByIdAndUpdate(commentId, {
                         $pull: {
@@ -287,7 +277,6 @@ exports.toggleDislikeComment = (req, res) => {
                     .populate(populateQuery) // POPULATES sub-docs
                     .exec()
             } else if(userAlreadyLikes) {
-                console.log('user already likes so need to remove first');
                 // a) remove user from likes array
                 return Comment
                     .findByIdAndUpdate(commentId, {
@@ -322,7 +311,6 @@ exports.toggleDislikeComment = (req, res) => {
     })
     .then(comment => {
         // Gets api representation of all nested / sub-docs
-        console.log(comment);
         comment = getApiRepr(comment);
         res.status(201).json(comment);
     })
@@ -377,7 +365,6 @@ exports.toggleLikeReplyComment = (req, res) => {
             }
             if(userAlreadyLikes) {
                 // remove user id from array
-                console.log('remove user id from array');
                 return Comment
                     .findOneAndUpdate(
                         {"_id": commentId, "replyComments._id": replyCommentId},
@@ -389,7 +376,6 @@ exports.toggleLikeReplyComment = (req, res) => {
                     .exec()
             } else if(userAlreadyDislikes) {
                     // a) remove user from dislikes array
-                    console.log('removing user from dislikes');
                     return Comment
                         .findOneAndUpdate(
                             {"_id": commentId, "replyComments._id": replyCommentId},
@@ -413,7 +399,6 @@ exports.toggleLikeReplyComment = (req, res) => {
                         })
             } else {
                 // add user id to array
-                console.log('add user id to array');
                 return Comment
                     .findOneAndUpdate(
                         {"_id": commentId, "replyComments._id": replyCommentId},
@@ -479,7 +464,6 @@ exports.toggleDislikeReplyComment = (req, res) => {
                     .exec()
             } else if(userAlreadyLikes) {
                 // a) remove user from likes array to start
-                console.log('removing user from likes');
                 return Comment
                     .findOneAndUpdate(
                         {"_id": commentId, "replyComments._id": replyCommentId},
@@ -589,7 +573,6 @@ exports.deleteReplyComment = (req, res) => {
                     location: ['req.user.username', 'comment.author']
                 });
             }
-            console.log('INSIDE');
             return Comment
                 .findByIdAndUpdate(
                     commentId, {
